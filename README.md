@@ -68,8 +68,6 @@ getSentence 能够处理变量声明，赋值，表达式 (优先做) if for whi
 
 处理一些简单的语法错误并记录行号。
 
-功能你定:-P
-
 ## 0x34 语义分析
 
 SemanticParser.js 文件中
