@@ -72,9 +72,15 @@ getSentence 能够处理变量声明，赋值，表达式 (优先做) if for whi
 
 SemanticParser.js 文件中
 
-声明语句  获取标识符语义，填写符号表
+四元式 Quat对象 (operation,param1,param2,result)
 
-操作语句 生成对应的四元式
+赋值语句 (=，中间变量1，_ ，result)
+
+左移(<-,tmp,位数,_)   添加result为读取之后的结果？
+
+右移(>-,tmp,位数,_)   添加result为读取之后的结果？
+
+声明语句  获取标识符语义，填写符号表
 
 名字还没想好（划掉
 
