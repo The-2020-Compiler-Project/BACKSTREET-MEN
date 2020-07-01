@@ -72,19 +72,31 @@ getSentence 能够处理变量声明，赋值，表达式 (优先做) if for whi
 
 SemanticParser.js 文件中
 
+栈类 Stack  方法如下:
+
+Stack.push(element) 压栈
+
+Stack.pop() 弹栈
+
+Stack.isEmpty() 判空
+
+Stack.size() 返回栈的长度
+
+Stack.clear() 清空
+
+Stack.print() 打印所有元素
+
 四元式 Quat对象 (operation,param1,param2,result)
 
 赋值语句 (=，中间变量1，_ ，result)
 
-左移(<-,tmp,位数,_)   添加result为读取之后的结果？
+左移(<-,tmp,位数,_)   
 
-右移(->,tmp,位数,_)   添加result为读取之后的结果？
+右移(->,tmp,位数,_)   
 
 声明语句  获取标识符语义，填写符号表
 
-名字还没想好（划掉
-
-应该需要四元式生成器，可能需要点别的，你自己加吧= =
+四元式生成器
 
 ## 0x35 四元式优化及运行环境
 
