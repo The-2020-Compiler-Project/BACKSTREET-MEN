@@ -21,6 +21,9 @@
   - 语法分析器设计实现
   - 中间代码设计
   - 中间代码生成器实现
+  
+- 后端基本要求
+  - 利用 VirtualMachine类 来配合 SymbolTable类 直接执行中间代码
 
 # 0x20 分支结构确定
 
@@ -104,7 +107,17 @@ Optimal.js 文件用于优化四元式
 
 Runtime.js 文件用于写运行环境
 
-接口待定
+- Bugs 类
+    - log 方法用于记录错误行号及信息
+    - 类本身可使用 for...of 来迭代
+- SymbolTable 类
+    - init 方法用于初始化并加入一个代表全局作用域的表
+    - pushTable 方法用于加入一张表，在进入新的作用域时调用
+    - popTable 方法用于删除最内层作用域的表，在离开作用域时调用
+    - insertSymbol 方法用于在当前最内层作用域插入一条记录
+    - getSymbolInfo 方法用于从最内层作用域向外查找一个符号，如果查到全局作用域还没找到则返回 undefined
+- VirtualMachine 类
+    - 接口待定
 
 # 0x40 文法定义
 
