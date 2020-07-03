@@ -15,7 +15,7 @@
 
 # 0x10 成果预期
 
-- 前端基本要求（如果选这个课题的话，注意还有一个“自选一个感兴趣的与编译原理有关的问题”）
+- 前端基本要求
   - 变量说明语句、算术表达式、赋值语句必须实现；逻辑运算、if语句、while语句等选做
   - 扫描器设计实现
   - 语法分析器设计实现
@@ -61,16 +61,12 @@ TokenParser.js 文件中
 
 SyntaxParser.js 文件中
 
-对象 SyntaxParser 用于完成这个功能
-
-实现 getLrList 进行分析得到LR分析表
-
-实现 getSentence 读取 Token 序列，每次返回一个完整语句(一个Token数组)
-
-getSentence 能够处理变量声明，赋值，表达式 (优先做) if for while 语句(按照顺序更新)
-
-处理一些简单的语法错误并记录行号。
-
+1.0 版本:
+- 实现语法分析类
+    - next用来保存调用词法分析接口返回的对象
+    - tokenParser用来调用词法分析的方法
+    - 类中各个以文法中非终结符命名的方法对应文法中各个子程序
+    - 目前几个bug都仅仅是返回error字符串，没有加入bug对象中
 ## 0x34 语义分析
 
 SemanticParser.js 文件中
@@ -120,4 +116,14 @@ Runtime.js 文件用于写运行环境
     - 接口待定
 
 # 0x40 文法定义
+文法：
 
+    <grammarList> -> <grammr><grammarList> | 空
+    <grammr> -> <char><State>; | <tape><State>; | <IT><evaluateOrMove>;| <exit><numConstant>
+    <State> -> <Sub> | <Sub>,<State>
+    <Sub> -> <IT><operateOne>
+    <operateOne> -> =<rightValue> | 空
+    <evaluateOrMove> -> <operateTwo><evaluateOrMoves>
+    <evaluateOrMoves> -> ,<IT><evaluateOrMove> | 空
+    <operateTwo> -> =<rightValue> | "->" | "<-"
+    <rightValue> -> <IT> | <strConstant>
