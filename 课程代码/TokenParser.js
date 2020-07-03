@@ -241,10 +241,7 @@ function TokenParser() {
             }
         }
 
-        this.judgeDT = function () {        //判断界符的函数
 
-
-        }
 
         this.initNumAutoMachine = function () {       //识别数字的自动机,返回一个AutoMachine类的数据
             let num = new AutoMachine();
