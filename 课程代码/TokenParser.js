@@ -1,4 +1,4 @@
-let test = ["c","h","a","r",' ','8',' ','a','b','c',' ',"'","\#","'","\n",'-','>',' ',';',' ','-'];              //用于测试的字符串变量
+let test = ["c","h","a","r",' ','8',' ','a','b','c',' ',"'","#","'","\n",'-','>',' ',';',' ','-'];              //用于测试的字符串变量
 //Token类
 function Token(value,type,line) {              //用于给语法分析返回数据
     this.value = value;
@@ -63,7 +63,6 @@ function TokenParser() {
 
     this.KW = ["char","tape","num","exit"];       //关键字数组
     this.str = new Array();
-    this.CharCT = ["'","\"",'\#',"_"];    //字符常量数组
     this.DT = ['->','<-','=',';','-','<'];     //界符数组
 
     this.load =function(str) {   //用于接收预处理后的字符串的方法
@@ -96,6 +95,7 @@ function TokenParser() {
             return this.value1;
         }
         else{
+
             return "Over!";
         }
 
@@ -177,68 +177,32 @@ function TokenParser() {
 
         this.judgeCharCT = function () {       //判断字符常量
 
-        if (this.str[this.location] === "'") {
+        if(this.str[this.location]==="'"){
+
             let arr = [];
-            let arr1 = [];
+            arr.push(this.str[this.location++]);
 
-            for (let key of this.CharCT) {
+            while(this.str[this.location]!=="'"){
 
-                arr1.push(key);
-            }
-
-            let key = arr1.join(' ');
-
-            arr[0] = this.str[this.location++];
-
-            if ((this.str[this.location] >= '0' && this.str[this.location] <= '9') || (this.str[this.location] >= 'a' && this.str[this.location] <= 'z') || (this.str[this.location] >= 'A' && this.str[this.location] <= 'Z')) {
-
-                arr[1] = this.str[this.location++];
-
-                if (this.str[this.location] === '\'') {
-                    arr[2] = this.str[this.location++];
-                    this.value = arr.join('');
-                    this.type = 'CS';
-                    this.line ++;
-                    this.returnNum = 3;         //字符常量识别成功将returnNum置为3
-                }
-                else {
-                    this.location = this.location - 2;
-                    Bugs.log(this.row, "您的字符常量出现了错误,最后少了引号呦。");
-                }
-            }
-            else {
-
-                let result = false;
-
-                for (let j of this.CharCT) {                 //对CharCT数组遍历
-                    if (this.str[this.location] === j) {     //如果该字符在定义的数组里
-                        arr[1] = this.str[this.location++];
-                        result = true;                       //如果在数组中就让result=true
-
-                        if (this.str[this.location] === "'") {
-                            arr[2] = this.str[this.location++];
-                            this.value = arr.join('');
-                            this.type = 'CS';
-                            this.line ++;
-                            this.returnNum = 3;            //字符常量识别成功将returnNum置为3
-                            break;                         //若发现在CharCT数组中则不必继续搜索
-                        }
-                        else {
-
-                            this.location = this.location - 2;
-                            Bugs.log(this.row, "您的字符常量出现了错误,最后少了引号呦。");
-                            break;                          //若发现在CharCT数组中则不必继续搜索
-                        }
-                    }
-                }
-                if (result === false) {
+                if(arr.length>1){
 
                     this.location = this.location - 1;
-                    Bugs.log(this.row, "您的字符常量出现了未被记录")
-
+                    Bugs.log(this.row,"字符常量的长度出现问题");
+                    return ;
+                }
+                else{
+                    arr.push(this.str[this.location++]);
                 }
             }
+
+            arr.push(this.str[this.location++]);
+
+            this.value = arr.join('');
+            this.type = "CS";
+            this.line++;
+            this.returnNum = 3;
         }
+
     }
 
 
@@ -302,7 +266,7 @@ function TokenParser() {
             }
 
             if(this.returnNum!==5){
-                Bugs.log(this.row,"您输入的字符有错误");
+               Bugs.log(this.row,"您输入的字符有错误");
             }
 
         }
