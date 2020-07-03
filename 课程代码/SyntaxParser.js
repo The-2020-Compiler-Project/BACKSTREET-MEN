@@ -12,11 +12,10 @@ SyntaxParser = function(){
          * 识别成功返回 "end"
          */
         this.next = this.tokenParser.next();
-        this.grammar(this.next);
-        if(this.next === "over"){
-            return "end";
+        this.grammar();
+        while(this.next !== "Over") {
+            this.grammar();
         }
-        else this.grammar();
     }
 
     this.grammar = function(){
@@ -41,7 +40,7 @@ SyntaxParser = function(){
                 return "error";
         }
         this.next = this.tokenParser.next();
-        if(this.next.value === ','){
+        if(this.next.value === ';'){
             this.next = this.tokenParser.next();
         }
         else return "error";
