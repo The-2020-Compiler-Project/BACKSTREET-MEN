@@ -15,6 +15,7 @@
 
 # 0x10 成果预期
 
+
 - 课设前端基本要求
   - 变量说明语句、算术表达式、赋值语句必须实现；逻辑运算、if语句、while语句等选做
   - 扫描器设计实现
@@ -22,6 +23,7 @@
   - 中间代码设计
   - 中间代码生成器实现
   
+
 - 课设后端基本要求
   - 利用 VirtualMachine类 来配合 SymbolTable类 直接执行中间代码
   
@@ -69,17 +71,12 @@ TokenParser.js 文件中
 ## 0x33 语法分析
 
 SyntaxParser.js 文件中
-
-对象 SyntaxParser 用于完成这个功能
-
-实现 getLrList 进行分析得到LR分析表
-
-实现 getSentence 读取 Token 序列，每次返回一个完整语句(一个Token数组)
-
-getSentence 能够处理变量声明，赋值，表达式 (优先做) if for while 语句(按照顺序更新)
-
-处理一些简单的语法错误并记录行号。
-
+1.0 版本:
+- 实现语法分析类
+    - next用来保存调用词法分析接口返回的对象
+    - tokenParser用来调用词法分析的方法
+    - 类中各个以文法中非终结符命名的方法对应文法中各个子程序
+    - 目前几个bug都仅仅是返回error字符串，没有加入bug对象中
 ## 0x34 语义分析
 
 SemanticParser.js 文件中
@@ -124,6 +121,7 @@ Runtime.js 文件用于写运行环境
     - insertSymbol 方法用于在当前最内层作用域插入一条记录，并针对非 tape 标识符返回是否重复插入
     - getVarSymbolInfo 方法用于从最内层作用域向外查找一个 char 或 num 的符号，如果查到全局作用域还没找到则返回 undefined
     - getTapeSymbolInfo 方法用于查找是否定义过一个 tape 变量（该类型无论在哪里定义都具有全局作用域，重复定义会覆盖）
+
 - VirtualMachine 类
     - load 方法用于加载编译阶段产生的 Quat 数组，作为之后要执行的指令集
     - step 方法用于执行 PC 指向的指令，并根据指令来切换 PC 的值
@@ -140,4 +138,14 @@ Runtime.js 文件用于写运行环境
     **注意：输出 tape 变量时用了 console.table 方法，该方法在浏览器环境和node环境的表现不同，node环境是本意，即 tapeData 是随指令变化的**
 
 # 0x40 文法定义
+文法：
 
+    <grammarList> -> <grammr><grammarList> | 空
+    <grammr> -> <char><State>; | <tape><State>; | <IT><evaluateOrMove>;| <exit><numConstant>
+    <State> -> <Sub> | <Sub>,<State>
+    <Sub> -> <IT><operateOne>
+    <operateOne> -> =<rightValue> | 空
+    <evaluateOrMove> -> <operateTwo><evaluateOrMoves>
+    <evaluateOrMoves> -> ,<IT><evaluateOrMove> | 空
+    <operateTwo> -> =<rightValue> | "->" | "<-"
+    <rightValue> -> <IT> | <strConstant>
