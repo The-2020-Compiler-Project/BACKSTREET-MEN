@@ -1,14 +1,14 @@
-let test = ["c","h","a","r",' ','8',' ','a','b','c',' ',"'","z","'"];              //用于测试的字符串变量
+let test = ["c","h","a","r",' ','8',' ','a','b','c',' ',"'","#","'","\n",'-','>',' ',';',' ','-'];              //用于测试的字符串变量
 //Token类
-function Token(value,type) {              //用于给语法分析返回数据
+function Token(value,type,line) {              //用于给语法分析返回数据
     this.value = value;
     this.type = type;
+    this.line = line;
 }
 
 //State类
 function State() {
     this.state = new Map();
-
     this.setJmpRul = function (char , nextState) {
         this.state.set(char,nextState); //将char与下一个状态关联
     }
@@ -58,32 +58,40 @@ function AutoMachine() {
 //TokenParser类
 function TokenParser() {
     this.location = 0;               //用于记录当前扫描的位置
-    this.row = 0;        //记录当前行数，用于错误收集
+    this.row = 1;                    //记录当前行数，用于错误收集
+    this.line = 0;                   //记录当前列数
+
     this.KW = ["char","tape","num","exit"];       //关键字数组
     this.str = new Array();
-    this.CharCT = ["'","\"",'\#',"_"];    //字符常量数组
-    this.DT = ['->','<-','>','<','=>','-'];     //界符数组
+    this.DT = ['->','<-','=',';','-','<'];     //界符数组
+
     this.load =function(str) {   //用于接收预处理后的字符串的方法
         this.str = str;
     }
 
     this.next = function () {   //用于返回给语法分析的方法
         if(this.location !== this.str.length){
+
             this.value = "";
             this.type = "";
+            this.returnNum = 0;              //可以根据该值来判断是否需要对该单词继续分析
 
             this.judgeKW();
+            if(this.returnNum !== 1){
+                this.judgeNumCT();
+                if(this.returnNum!==2){
+                    this.judgeCharCT();
+                    if(this.returnNum!==3){
+                        this.judgeIT();
+                        if(this.returnNum!==4){
+                            this.judgeDT();
+                        }
+                    }
+                }
 
-            this.judgeNumCT();
+            }
+            this.value1 = new Token(this.value,this.type,this.line);
 
-            this.judgeIT();
-
-            this.judgeCharCT();
-
-            this.judgeStringCT();
-
-            this.value1 = new Token(this.value,this.type);
-            console.log(this.value1);
             return this.value1;
         }
         else{
@@ -96,15 +104,16 @@ function TokenParser() {
 
     this.judgeKW = function() {  //进行关键字的判断
 
-        this.returnNum = 0;
-
         while (this.str[this.location] === ' ' || this.str[this.location] === '\t') {
+
             this.location++;
         }
 
         while (this.str[this.location] === '\n') {   //行数加一
-            this.row++;
+
+            this.row++;         //遇到换行，行数加1
             this.location++;
+            this.line = 0;      //遇到换行列数等于1
         }
 
         if ((this.str[this.location] >= 'a' && this.str[this.location] <= 'z') || (this.str[this.location] >= 'A' && this.str[this.location] <= 'Z')) {
@@ -112,25 +121,27 @@ function TokenParser() {
             let arr = [];   //建立一个空数组
 
             let k = 0;//arr的下标
+
             while (((this.str[this.location] >= '0' && this.str[this.location] <= '9') || this.str[this.location] === '_' || (this.str[this.location] >= 'a' && this.str[this.location] <= 'z') || (this.str[this.location] >= 'A' && this.str[this.location] <= 'Z')) && (this.str[this.location] !== ' ' && this.location !== this.str.length)) {
                 arr[k] = this.str[this.location];
                 this.value = arr.join('');       //将arr的内容以字符串的形式保存到this.value中
                 this.location++;
                 k++;
+
             }
 
             for (let keyword of this.KW) {
                 if (this.value === keyword) {
-                   this. returnNum = 1;        //为关键字，返回值为1
+                    this. returnNum = 1;        //为关键字，返回值为1
                     this.type = this.value;
+                    this.line ++;               //列数加一
                 }
             }
 
-            if (this.returnNum !== 1) {
+            if (this.returnNum !== 1) {         //不是关键字
 
                 this.location = this.location - k;  //不是关键字，因此要将location的值变为进入该函数之前的值
             }
-
         }
     }
 
@@ -153,77 +164,55 @@ function TokenParser() {
 
                 if(num.judge(this.value)===true){
                     this.type="CT";
+                    this.line ++;
+                    this.returnNum = 2;             //该单词为数字
                 }
                 else{
 
-                    Bugs.log(this.row,"该数字常量有错误！");             //出现数字错误 要进入Bug类中
-
+                    Bugs.log(this.row,"该数字常量有错误呦-");             //出现数字错误 要进入Bug类中
                 }
             }
-
         }
-
 
 
         this.judgeCharCT = function () {       //判断字符常量
-        if (this.str[this.location] === "'") {
+
+        if(this.str[this.location]==="'"){
+
             let arr = [];
-            let arr1 = [];
-            for (let key of this.CharCT) {
-                arr1.push(key);
-            }
-            let key = arr1.join(' ');
+            arr.push(this.str[this.location++]);
 
-            arr[0] = this.str[this.location++];
+            while(this.str[this.location]!=="'"){
 
-            if ((this.str[this.location] >= '0' && this.str[this.location] <= '9') || (this.str[this.location] >= 'a' && this.str[this.location] <= 'z') || (this.str[this.location] >= 'A' && this.str[this.location] <= 'Z')) {
-                arr[1] = this.str[this.location++];
-                if (this.str[this.location] === '\'') {
-                    arr[2] = this.str[this.location++];
-                    this.value = arr.join('');
-                    this.type = 'CS';
-                } else {
-                    this.location = this.location - 2;
-                    Bugs.log(this.row, "您的字符常量出现了错误,最后少了引号呦。");
-                }
-            } else {
-                let result = false;
-                //arr[1] = this.str[this.location++];
-                for (let j of this.CharCT) {               //对CharCT数组遍历
-                    if (this.str[this.location] === j) {     //如果该字符在定义的数组里
-                        arr[1] = this.str[this.location++];
-                        result = true;          //如果在数组中就让result=true
-                        if (this.str[this.location] === "'") {
-                            arr[2] = this.str[this.location++];
-                            this.value = arr.join('');
-                            this.type = 'CS';
-                        } else {
-                            this.location = this.location - 2;
-                            Bugs.log(this.row, "您的字符常量出现了错误,最后少了引号呦。");
-                        }
-                    }
-                }
-                if (result === false) {
+                if(arr.length>1){
+
                     this.location = this.location - 1;
-                    Bugs.log(this.row, "您的字符常量出现了未被记录")
-
+                    Bugs.log(this.row,"字符常量的长度出现问题");
+                    return ;
                 }
-
+                else{
+                    arr.push(this.str[this.location++]);
+                }
             }
 
+            arr.push(this.str[this.location++]);
+
+            this.value = arr.join('');
+            this.type = "CS";
+            this.line++;
+            this.returnNum = 3;
         }
+
     }
 
-        this.judgeStringCT = function () {
-
-
-        }
 
         this.judgeIT = function () {    //判断标识符的函数
 
             if (this.str[this.location] === '_' || (this.str[this.location] >= 'a' && this.str[this.location] <= 'z') || (this.str[this.location] >= 'A' && this.str[this.location] <= 'Z')) {
+
                 let arr = [];
                 let k = 0;
+
                 while (((this.str[this.location] >= '0' && this.str[this.location] <= '9') || this.str[this.location] === '_' || (this.str[this.location] >= 'a' && this.str[this.location] <= 'z') || (this.str[this.location] >= 'A' && this.str[this.location] <= 'Z')) && (this.str[this.location] !== ' ' && this.location !== this.str.length)) {
 
                     arr[k] = this.str[this.location];
@@ -233,12 +222,53 @@ function TokenParser() {
                 }
 
                 let it = this.initITAutoMachine();
+
                 if (it.judge(this.value) === true) {
                     this.type = "IT";
-                } else {
+                    this.line++;
+                    this.returnNum = 4;             //识别标识符成功，returnNum值为4
+                }
+                else {
                     this.location = this.location - k;
                 }
             }
+        }
+
+
+        this.judgeDT = function () {        //识别DT数组中的界符
+            let arr = [];
+            let k = 0;       //arr的下标
+            arr[k++] = this.str[this.location]; //将当前字符赋给arr
+
+            if(this.str[this.location]==='-'||this.str[this.location]==='<'){   //判断是否为->或者是<-
+
+                this.location++;
+                if(this.location!==this.str.length){    //判断是否越界了
+                    arr[k++] = this.str[this.location++];   //没有越界，则将第二个字符赋给arr
+                    this.value = arr.join('');          //将arr赋给value
+                }
+                else
+                    this.value = arr.join('');          //将arr赋给value
+            }
+            else {
+                this.value = arr.join('');              //将arr赋给value
+                this.location++;                        //将当前扫描的地方加一
+            }
+
+            for(let dt of this.DT){                     //遍历数组
+
+                if(this.value === dt){                  //判断是否在DT数组中
+                    this.returnNum = 5;                 //为界符，returnNum置为5
+                    this.type = "DT";
+                    this.line++;
+                    break;                              //若发现在DT数组中则不必继续搜索
+                }
+            }
+
+            if(this.returnNum!==5){
+               Bugs.log(this.row,"您输入的字符有错误");
+            }
+
         }
 
 
@@ -271,27 +301,34 @@ function TokenParser() {
 
        this.initITAutoMachine = function () {
             let it = new AutoMachine();
+
             it.makePair(0, '-', 2);
             it.makePair(1, '_', 2);
+
             let arr = [];               //用于存放a-z的数组
-            for (let j = 0; j < 26; j++) {
+
+           for (let j = 0; j < 26; j++) {
                 let alpha = String.fromCharCode(65 + j);  //String的方法转化为字母A-Z
                 arr.push(alpha);
             }
+
             for (let j = 0; j < 26; j++) {
                 let alpha = String.fromCharCode(97 + j);//转化为a-z
                 arr.push(alpha);
             }
+
             for (let j = 0; j < arr.length; j++) {
                 it.makePair(0, arr[j], 1);
                 it.makePair(1, arr[j], 1);
                 it.makePair(2, arr[j], 2);
             }
+
             for (let j = 0; j < 9; j++) {
                 let temp = j.toString();
                 it.makePair(1, temp, 1);
                 it.makePair(2, temp, 2);
             }
+
             it.setEndState(1, 2);
             return it;
         }
@@ -299,6 +336,10 @@ function TokenParser() {
 }
 let p = new TokenParser();      //建立一个空对象
 p.load(test);
+p.next();
+p.next();
+p.next();
+p.next();
 p.next();
 p.next();
 p.next();
