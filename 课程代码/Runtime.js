@@ -50,8 +50,8 @@ SymbolTable = new (function () {
         this.value = value;
     }
 
-    this.tables = undefined;
-    this.tapes = undefined;
+    this.tables = [new Map()]; /init 时用到/
+    this.tapes = undefined; 
 
     this.init = function (isRuntime = false) {
         /**
@@ -278,11 +278,11 @@ VirtualMachine.exec = new Map([
 ]);
 
 
-function testBench() {
+function testBench(fstr) {
     /**
      * 测试虚拟机的函数，之后可以删除
      */
-    function Quat(operation, param1, param2, result) {
+    function Quat(operation, param1, param2, result) { /强哥将传过来的变量/
         /**
          * 临时创建了一个四元式对象 :-P
          */
@@ -295,9 +295,10 @@ function testBench() {
     let vm = VirtualMachine;
 
     SymbolTable.init();
-    // 模拟强哥的语义动作，向符号表中插入一个纸带对象，因为它在运行环境时的 init 不会被删掉也不会添加新的
+   / 模拟强哥的语义动作，向符号表中插入一个纸带对象，因为它在运行环境时的 init 不会被删掉也不会添加新的 /
+
     SymbolTable.insertSymbol("output", "tape", "");
-    console.log('语义分析结束的output:', SymbolTable.tapes.get('output'));
+    console.log('语义分析结束的output:', SymbolTable.tapes.get('output')); 
 
 
     /**
@@ -305,37 +306,33 @@ function testBench() {
      *  tape output;
      *  char tmp = '*';
      *
-     *  output = tmp; output->;
+     *  output = tmp; output->; 移到下一格
      *  output = 'H'; output->;
      *  output = 'i'; output->;
      *
      *  exit 0;
      */
-    vm.load([
-        new Quat('=', '', 'tape', 'output'),
-        new Quat('=', '\'*\'', 'char', 'tmp'),
-        new Quat('=', 'tmp', '', 'output'),
-        new Quat('->', 'output', 1, ''),
-        new Quat('=', '\'H\'', '', 'output'),
-        new Quat('->', 'output', 1, ''),
-        new Quat('=', '\'i\'', '', 'output'),
-        new Quat('->', 'output', 1, ''),
-        new Quat('jmp', '', '', -1)
-    ])
+    vm.load(fstr);
 
-    while (true) {
+    function Loop() {
         try {
             console.log("运行指令：", vm.getNowInstruction());
             vm.step();
-
-            let tape = SymbolTable.tapes.get('output');
+            let tape = SymbolTable.tapes.get('output'); 
             console.table({tapeData: tape.value.tapeData});
+            var str = tape.value.tapeData.join(" ");
+            document.getElementById('name').innerHTML = tape.value.name;
+            document.getElementById("tape1").innerHTML = str;
+            document.getElementById("pointer").innerHTML = tape.value.pointer 
+
             console.log(` ${tape.value.name}: pointer = ${tape.value.pointer}`);
         } catch (RangeError) {
-            console.log(`运行结束，退出状态为 ${vm.endState} (${vm.endState?"正常退出":"异常退出"})`);
-            break;
+            console.log(`运行结束，退出状态为 ${vm.endState} (${vm.endState===-1 ? "正常退出" : "异常退出"})`);
+            return
         }
+        setTimeout(Loop, 500);
     }
+
+    Loop();
 }
 
-testBench();
