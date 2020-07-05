@@ -6,7 +6,7 @@ SyntaxParser = function(){
      */
     this.next = undefined;
     this.tokenParser = new TokenParser();
-    this.sp = new SemanticParser();
+    this.sp = new SemanticParser(); 
     this.stack = new Stack();
     this.quatCreate = new QuatCreate();
     this.grammarList = function(){
@@ -196,5 +196,3 @@ SyntaxParser = function(){
     this.token = [new Token("char","char"),new Token("test","IT"),new Token(",","DT"),new Token(";","DT")];
 }*/
 
-let syntaxParser = new SyntaxParser();
-syntaxParser.grammarList();

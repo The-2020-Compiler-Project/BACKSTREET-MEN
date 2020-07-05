@@ -3,14 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <title>FOF</title>
+    <script src="js/jquery-3.4.1.js"></script>
     <script type="text/javascript" src="Runtime.js"></script>
-    <script type="text/javascript" src="PreProcessor.js"></script>
     <script type="text/javascript" src="TokenParser.js"></script>
-    <script type="text/javascript" src="SyntaxParser.js"></script>
+    <script type="text/javascript" src="PreProcessor.js"></script>
     <script type="text/javascript" src="SemanticParser.js"></script>
+    <script type="text/javascript" src="SyntaxParser.js"></script>
     <script type="text/javascript" src="Optimal.js"></script>
+
+    <!-- 网页界面 -->
+    <link rel="stylesheet" type="text/css" href="index.css">
 </head>
 <body>
-    <!--  Something  -->
+    <div id="hander">
+        <h1 id="title">F O F</h1>
+        <button class="complie" type="button" onclick="complie()">Build</button>
+        <button class="run" type="button" onclick="show()">Run</button>
+    </div>
+    <div id="mian">
+        <div id="leftBox">
+            <textarea wrap="off" cols="2" id="leftNum" disabled></textarea>
+        </div>
+        <textarea id="test" name="content" onkeydown="keyUp()" onscroll="getId('leftNum').scrollTop = this.scrollTop;">
+        </textarea>
+    </div>
+
+    <!--弹窗-->
+    <div id = "frame">
+        <div class="shadow">
+            <div class="hander">
+                <button id="next" onclick="next()">--></button>
+                <div class="close" onclick="hide()">X</div>
+            </div>
+            <div class="window">
+                <div id="tape">
+                    <div id="name"></div>
+                    <div id="pointer"></div>
+                    <div id=tape1 class="tape"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script type="text/javascript">
+    $("textarea").on(
+    'keydown',
+    function(e) {
+        if (e.keyCode == 9) {
+            e.preventDefault();
+            var indent = '    ';
+            var start = this.selectionStart;
+            var end = this.selectionEnd;
+            var selected = window.getSelection().toString();
+            selected = indent + selected.replace(/\n/g, '\n' + indent);
+            this.value = this.value.substring(0, start) + selected
+                    + this.value.substring(end);
+            this.setSelectionRange(start + indent.length, start
+                    + selected.length);
+        }
+    });
+    /行号设置/
+    var num = "";
+    var btn = getId('btn');
+    var text = getId('test');
+    function getId(obj) {
+        return document.getElementById(obj);
+    }
+    function keyUp(){
+        var str = text.value;
+        str = str.replace(/\r/gi,"");
+        str = str.split("\n");
+        n = str.length;
+        line(n);
+    }
+    function line(n){
+        var lineobj = getId("leftNum");
+        for(var i = 1;i <= n;i ++){
+           if(document.all){
+            num += i + "\r\n";//判断浏览器是否是IE
+           }else{
+            num += i + "\n";
+           }
+        }
+        lineobj.value = num;
+        num = "";
+    }
+
+    (function() {
+        keyUp();
+    })();
+
+    /run 后的弹窗/
+    document.getElementById("frame").style.display="none";
+    function complie() {   /<= 在这里开始接/
+        let p = new TokenParser();      //建立一个空对象
+        p.load(PreProcessor());
+        var syntaxParser = new SyntaxParser();
+        syntaxParser.grammarList();
+    }
+    function show() { /点击运行时执行的函数/
+        document.getElementById("frame").style.display="";
+    }
+
+    function next() {
+        let vm = VirtualMachine;
+        vm.load(syntaxParser.quatCreate.quat);
+        SymbolTable.init();
+       / 模拟强哥的语义动作，向符号表中插入一个纸带对象，因为它在运行环境时的 init 不会被删掉也不会添加新的 /
+
+        SymbolTable.insertSymbol("output", "tape", "");
+        console.log('语义分析结束的output:', SymbolTable.tapes.get('output')); 
+
+        try {
+            console.log("运行指令：", vm.getNowInstruction());
+            vm.step();
+            let tape = SymbolTable.tapes.get('output'); 
+            console.table({tapeData: tape.value.tapeData});
+            var str = tape.value.tapeData.join(" ");
+            document.getElementById('name').innerHTML = tape.value.name;
+            document.getElementById("tape1").innerHTML = str;
+            document.getElementById("pointer").innerHTML = tape.value.pointer 
+
+            console.log(` ${tape.value.name}: pointer = ${tape.value.pointer}`);
+        } catch (RangeError) {
+            console.log(`运行结束，退出状态为 ${vm.endState} (${vm.endState===-1 ? "正常退出" : "异常退出"})`);
+            return
+        }
+    
+    }
+
+    function hide() {
+        document.getElementById("frame").style.display="none";
+    }
+</script>
 </body>
 </html>
