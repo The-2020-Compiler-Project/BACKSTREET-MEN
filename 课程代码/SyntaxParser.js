@@ -174,10 +174,10 @@ SyntaxParser = function(){
     }
 };
 
-TokenParser = function(){
+//TokenParser = function(){
     /*
      * test类
-     */
+
     Token = function(value,type){
         this.value = value;
         this.type = type;
@@ -194,7 +194,7 @@ TokenParser = function(){
         return next;
     }
     this.token = [new Token("char","char"),new Token("test","IT"),new Token(",","DT"),new Token(";","DT")];
-}
+}*/
 
 let syntaxParser = new SyntaxParser();
 syntaxParser.grammarList();
