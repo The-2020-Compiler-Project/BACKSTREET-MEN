@@ -42,19 +42,17 @@ function SemanticParser(){
 
     this.flag = undefined;   //在声明语句中存放标志
 
-    this.judgeState = function(next){
+    this.judgeState = function(next,sp){
         /*  仅在声明语句时对被声明的变量使用
         *   声明语句的语义动作不调用查找的方法，直接调用插入并检测它的返回值
         *   返回值 : 如果是true表示是新变量并已经插入到符号表内，如果是false则表示已经定义过
         *   symbol: 变量名
         *   type:   变量类型
         */
-        this. temp = undefined;
+        this.temp = undefined;
 
-        this.temp = SymbolTable.insertSymbol(next.value,next.type,'');    //这里的value和词法分析的value代表的意义不同
+        this.temp = SymbolTable.insertSymbol(next.value,sp.flag,'');    //这里的value和词法分析的value代表的意义不同
         if(this.temp === false){
-
-
             Bugs.log(next.line,next.row,"SemanticError: 重复声明！ ");
         }
     }
@@ -73,14 +71,14 @@ function SemanticParser(){
         }
 
     }
-    this.judgeTapeDeclared = function(next){
+    this.judgeTapeDeclared = function(next,symbol){
         /* 查符号表，判断是否未经声明使用
         *  在非声明语句中，判断“纸带变量”是否未经声明使用
         *  symbol: 符号的名字
         *  返回值:
         */
         this.temp = undefined;
-        this.temp = SymbolTable.getTapeSymbolInfo(next.value);
+        this.temp = SymbolTable.getTapeSymbolInfo(symbol);
         if(this.temp === undefined){
             //bug 类，纸带变量未经声明使用
             Bugs.log(next.line,next.row,"SemanticError: 纸带变量未经声明使用！ ");
@@ -107,7 +105,7 @@ function SemanticParser(){
         else{     //如果为纸带变量
             this.temp1 = SymbolTable.getTapeSymbolInfo(symbol1);
             this.temp2 = SymbolTable.getTapeSymbolInfo(symbol2);
-            if(temp1 === undefined || temp2 === undefined){
+            if(this.temp1 === undefined || temp2 === undefined){
                 //bug类,两操作数类型不一致
                 Bugs.log(next.line,next.row,"SemanticError: 非纸带变量进行纸带移动操作！ ");
 
