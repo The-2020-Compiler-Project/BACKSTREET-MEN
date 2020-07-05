@@ -26,6 +26,7 @@ SyntaxParser = function(){
         /* 识别语句
          * 分别为声明语句,赋值语句,exit语句
          */
+        console.log(this.next);
         switch(this.next.type){
             case "char":
             case "tape":
