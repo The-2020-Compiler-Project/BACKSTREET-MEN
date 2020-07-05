@@ -65,14 +65,14 @@ function TokenParser() {
     this.str = new Array();
     this.DT = ['->','<-','=',';','-','<'];     //界符数组
     this.test = function () {
-        let test = "521wan".split('');              //用于测试的字符串变量
+        let test = "".split('');              //用于测试的字符串变量
 
         this.load(test);
         while (this.location!==this.str.length){
             this.next();
         }
         if(this.returnNum!==-1){
-            //console.log("Over!");
+
             return "Over!";
         }
 
@@ -90,53 +90,53 @@ function TokenParser() {
             this.returnNum = 0;              //可以根据该值来判断是否需要对该单词继续分析
             this.error = "SytnaxError:It has been unmeaning";   //用于声明字符常量少引号的错误
             this.judgeKW();
-            if(this.returnNum === 1){
-               // console.log(new Token(this.value,this.type,this.row,this.line));
+            if(this.returnNum === 1){               //如果等于1说明是关键字
+
                 return new Token(this.value,this.type,this.row,this.line);
             }
-            else if(this.returnNum === - 2){
+            else if(this.returnNum === - 2){        //如果等于-2说明换行符是在最后
                 return ;
             }
 
             this.judgeIT();
-            if(this.returnNum === 2){
-                //console.log(new Token(this.value,this.type,this.row,this.line));
+            if(this.returnNum === 2){               //如果等于2说明是标识符
+
                 return new Token(this.value,this.type,this.row,this.line);
             }
 
             this.judgeNumCT();
 
-            if(this.returnNum === 3){
-                //console.log(new Token(this.value,this.type,this.row,this.line));
+            if(this.returnNum === 3){               //如果等于3说明是数字常量
+
                 return new Token(this.value,this.type,this.row,this.line);
             }
 
             this.judgeCharCT();
 
-            if(this.returnNum === 4){
-                //console.log(new Token(this.value,this.type,this.row,this.line));
+            if(this.returnNum === 4){               //如果等于4说明是字符常量
+
                 return new Token(this.value,this.type,this.row,this.line);
             }
-            else if(this.returnNum === -1){
+            else if(this.returnNum === -1){         //如果等于-1说明少了个单引号，则抛出异常
 
                 //throw new SyntaxError('The Character Constant misses a semicolon');
-                //console.log(this.error);
+
                 return this.error;
             }
             this.judgeStringCT();
 
-            if(this.returnNum === 5){
-                //console.log(new Token(this.value,this.type,this.row,this.line));
+            if(this.returnNum === 5){               //如果等于5说明事字符串常量
+
                 return new Token(this.value,this.type,this.row,this.line);
             }
-            else if(this.returnNum === -1){
+            else if(this.returnNum === -1){         //如果等于-1说明少了一个双引号，则抛出异常
                 //throw new SyntaxError('The String Constant misses a semicolon');
-                //console.log(this.error);
+
                 return this.error;
             }
             this.judgeDT();
-            if(this.returnNum === 6){
-                //console.log(new Token(this.value,this.type,this.row,this.line));
+            if(this.returnNum === 6){               //如果等于6则说明是界符
+
                 return new Token(this.value,this.type,this.row,this.line);
 
             }
@@ -148,6 +148,9 @@ function TokenParser() {
         while (this.str[this.location] === ' ' || this.str[this.location] === '\t') {
 
             this.location++;
+            if(this.location === this.str.length){  //如果空格或者\t符在最后
+                this.returnNum = -2;
+            }
         }
 
         while (this.str[this.location] === '\n') {   //行数加一
@@ -155,7 +158,7 @@ function TokenParser() {
             this.row++;         //遇到换行，行数加1
             this.location++;
             this.line = 0;      //遇到换行列数等于1
-            if(this.location === this.str.length){      //如果换行符在最后就直接的情况
+            if(this.location === this.str.length){      //如果换行符在最后
                 this.returnNum = -2;
             }
         }
@@ -214,13 +217,14 @@ function TokenParser() {
                     this.type="CT";
                     this.line++;
                     this.returnNum = 3;
-                    Bugs.log(this.row,"该数字常量有错误呦-");             //出现数字错误 要进入Bug类中
+                    Bugs.log(this.row,this.line,"该数字常量有错误呦-");             //出现数字错误 要进入Bug类中
                 }
             }
         }
 
 
         this.judgeCharCT = function () {       //判断字符常量
+        let result = true;
 
         if(this.str[this.location]==="'") {     //判断第一个符号是否为'
 
@@ -260,6 +264,7 @@ function TokenParser() {
                 }
 
                 else{               //当arr中字符数量大于1时，即对之后的字符进行抛弃
+                    result = false;
                     this.location++;
                     this.returnNum = -1;    //判定到数组的结尾仍然没有引号
                     if(this.str[this.location]==="'"){  //判断是否判断完毕
@@ -274,9 +279,14 @@ function TokenParser() {
 
                 }
             }
+
+            if(result === false){
+                Warnings.log(this.row,this.line,"字符常量长度出现了问题");
+            }
+
             if(this.returnNum === -1){
 
-                Bugs.log(this.num,"您输入的字符常量少了一个引号");
+                Bugs.log(this.num,this.line,"您输入的字符常量少了一个引号");
                 return;
             }
         }
@@ -284,15 +294,15 @@ function TokenParser() {
 
     this.judgeStringCT = function () {      //判断字符串常量
 
-        if(this.str[this.location]==='"'){
+        if(this.str[this.location]==='"'){      //进入该判断的条件，首个字符是双引号
             this.location++;
             let arr = [];
-            arr.push('"');
+            arr.push('"');                      //将双引号push到arr中
 
-            while(this.location!==this.str.length&&this.str[this.location]!=='"'){
+            while(this.location!==this.str.length&&this.str[this.location]!=='"'){      //一直读，直到扫描的位置到了数组的最后或者读到了双引号为止
                 arr.push(this.str[this.location++]);
             }
-            if(this.str[this.location]==='"'){
+            if(this.str[this.location]==='"'){  //判断从while中退出来是什么原因，如果是读到了双引号，则说明读到了字符串常量
                 arr.push('"');
                 this.location++;
                 this.value = arr.join('');
@@ -300,15 +310,13 @@ function TokenParser() {
                 this.line++;
                 this.returnNum = 5;
             }
-            else{
-                Bugs.log(this.row,"您输入的字符串常量少了一个分号");
+            else{                               //已经读到了代码的最后也没有读到双引号，则报错，编译停止
+                Bugs.log(this.row,this.line,"您输入的字符串常量少了一个分号");
                 return ;
             }
-
         }
-
-
     }
+
 
         this.judgeIT = function () {    //判断标识符的函数
 
@@ -323,14 +331,14 @@ function TokenParser() {
 
                 }
                 this.value = arr.join('');       //将arr的内容以字符串的形式保存到value中
-                this.it = this.initITAutoMachine();
+                this.it = this.initITAutoMachine();//调用自动机，这里用一个成员属性来调用，节省了资源
 
-                if (this.it.judge(this.value) === true) {
+                if (this.it.judge(this.value) === true) {       //如果判断成功，该it是标识符，则对相应的量进行赋值
                     this.type = "IT";
                     this.line++;
                     this.returnNum = 2;             //识别标识符成功，returnNum值为4
                 }
-                else {
+                else {                          //如果没有识别成功，则返回到扫描前的位置
                     this.location = this.location - k;
                 }
 
@@ -372,7 +380,7 @@ function TokenParser() {
             }
 
             if(this.returnNum!==6){
-               Bugs.log(this.row,"您输入的界符有错误");
+               Bugs.log(this.row,this.line,"您输入的界符有错误");
             }
 
         }
@@ -384,7 +392,7 @@ function TokenParser() {
             num.makePair(0, '.', 3);
             num.makePair(1, '.', 2);
 
-            for (let j = 0; j < 10; j++) {
+            for (let j = 0; j < 10; j++) {      //根据状态转换图进行相应的绑定
                 let temp = j.toString();
                 num.makePair(0, temp, 1);
                 num.makePair(1, temp, 2);
@@ -399,7 +407,7 @@ function TokenParser() {
             num.makePair(4, '+', 5);
             num.makePair(4, '-', 5);
 
-            num.setEndState(1, 2, 6);
+            num.setEndState(1, 2, 6);       //将1、2、6状态设为终止状态
 
             return num;
         }
