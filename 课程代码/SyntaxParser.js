@@ -88,7 +88,7 @@ SyntaxParser = function(){
     this.sub = function(){
         // 识别文法中的sub
         if(this.next.type === "IT"){
-            this.sp.judgeState(this.next.value,this.sp.flag);
+            this.sp.judgeState(this.next,this.sp.flag);
             this.stack.push(this.next.value);
             this.next = this.tokenParser.next();
             this.operateOne();
@@ -124,13 +124,13 @@ SyntaxParser = function(){
                 this.next = this.tokenParser.next();
                 break;
             case "->":
-                this.sp.judgeTapeDeclared(this.stack.items[this.stack.items.length-1]);
+                this.sp.judgeTapeDeclared(this.next,this.stack.items[this.stack.items.length-1]);
                 this.quatCreate.quatTapeRight();
                 this.stack.pop();
                 this.next = this.tokenParser.next();
                 break;
             case "<-":
-                this.sp.judgeTapeDeclared(this.stack.items[this.stack.items.length-1]);
+                this.sp.judgeTapeDeclared(this.next,this.stack.items[this.stack.items.length-1]);
                 this.quatCreate.quatTapeLeft();
                 this.stack.pop();
                 this.next = this.tokenParser.next();
@@ -142,9 +142,9 @@ SyntaxParser = function(){
 
     this.rightValue = function(){
         if(this.next.type === "IT"){
-            this.sp.judgeVarDeclared(this.next.value);
+            this.sp.judgeVarDeclared(this.next);
             this.stack.push(this.next.value);
-            this.sp.judgeTypeSame(this.stack.items[this.stack.items.length-1],this.stack.items[this.stack.items.length-2]);
+            this.sp.judgeTypeSame(this.next,this.stack.items[this.stack.items.length-1],this.stack.items[this.stack.items.length-2]);
             this.next = this.tokenParser.next();
         }
         else{
