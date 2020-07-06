@@ -152,8 +152,9 @@ function TokenParser() {
         }
         if(this.returnNum!==-1){
             this.location++;
+            this.value = "Over!";
             //console.log("Over!");
-            return "Over!";
+            return this.value;
         }
 
     }
