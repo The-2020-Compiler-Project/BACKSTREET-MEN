@@ -16,17 +16,25 @@ SyntaxParser = function(){
          */
         this.next = this.tokenParser.next();
         this.grammar();
-        while(this.next !== "Over") {
+
+        while(this.next.value !== "Over!") {
             this.grammar();
         }
         console.log("识别完成");
+    }
+
+    this.init = function(tokenParser){
+        this.next = undefined;
+        this.stack.clear();
+        this.quatCreate.init();
+        this.tokenParser = tokenParser;
+        this.sp = semanticParser.init();
     }
 
     this.grammar = function(){
         /* 识别语句
          * 分别为声明语句,赋值语句,exit语句
          */
-        console.log(this.next);
         switch(this.next.type){
             case "char":
             case "tape":

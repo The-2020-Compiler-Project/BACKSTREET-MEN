@@ -2,31 +2,31 @@ function Stack() {    //语义栈
     this.items = [];
     // 向栈添加新元素
     this.push = function (element) {
-        items.push(element);
+        this.items.push(element);
     }
     // 从栈内弹出一个元素
     this.pop = function () {
-        return items.pop();
+        return this.items.pop();
     }
     // 返回栈顶的元素
     this.peek = function () {
-        return items[items.length - 1];
+        return this.items[this.items.length - 1];
     }
     // 判断栈是否为空
     this.isEmpty = function () {
-        return items.length === 0;
+        return this.items.length === 0;
     }
     // 返回栈的长度
     this.size = function () {
-        return items.length;
+        return this.items.length;
     }
     // 清空栈
     this.clear = function () {
-        items = [];
+        this.items = [];
     }
     // 打印栈内的所有元素
     this.print = function () {
-        console.log(items.toString());
+        console.log(this.items.toString());
     };
 }
 function Quat(operation, param1, param2, result) {
@@ -105,7 +105,7 @@ function SemanticParser(){
         else{     //如果为纸带变量
             this.temp1 = SymbolTable.getTapeSymbolInfo(symbol1);
             this.temp2 = SymbolTable.getTapeSymbolInfo(symbol2);
-            if(this.temp1 === undefined || temp2 === undefined){
+            if(this.temp1 === undefined || this.temp2 === undefined){
                 //bug类,两操作数类型不一致
                 Bugs.log(next.line,next.row,"SemanticError: 非纸带变量进行纸带移动操作！ ");
 
@@ -123,43 +123,56 @@ function QuatCreate() {
         /* 生成赋值语句四元式
         *
         */
-        quat.push(new Quat('=',stack.items[stack.items.length - 1] , '' ,stack.items[stack.items.length - 2]));
+        this.quat.push(new Quat('=',this.stack.items[this.stack.items.length - 1] , '' ,this.stack.items[this.stack.items.length - 2]));
     }
     this.quatDeclareEvaluate = function(){
         /* 生成声明语句四元式
         *  声明同时赋值
         */
-        quat.push(new Quat('=',stack.items[stack.items.length - 1],semanticParser.flag,stack.items[stack.items.length - 2]));
+        this.quat.push(new Quat('=',this.stack.items[this.stack.items.length - 1],this.semanticParser.flag,this.stack.items[this.stack.items.length - 2]));
     }
     this.quatTapeLeft = function () {
         /*
         *  生成纸带左移操作四元式
          */
-        quat.push(new Quat('<-',stack.items[stack.items.length - 1],1,''));
+        this.quat.push(new Quat('<-',this.stack.items[this.stack.items.length - 1],1,''));
     }
     this.quatTapeRight = function () {
         /*
         *  生成纸带右移操作四元式
          */
-        quat.push(new Quat('->',stack.items[stack.items.length - 1],1,''));
+        this.quat.push(new Quat('->',this.stack.items[this.stack.items.length - 1],1,''));
     }
     this.quatExitNormally = function(){
         /* 生成程序正常退出的四元式
         *
          */
-        quat.push(new Quat('jmp','','' ,-1));
+        this.quat.push(new Quat('jmp','','' ,-1));
     }
     this.quatExitWrong = function(){
         /*  生成程序异常退出的四元式
         *
          */
-        quat.push(new Quat('jmp','','',-2));
+        this.quat.push(new Quat('jmp','','',-2));
     }
     this.quatDeclare = function(){
         /*  生成声明语句四元式
          *  声明同时不进行赋值
          */
-        quat.push(new Quat('=',semanticParser.flag,'',stack.items[stack.items.length - 1]));
+        this.quat.push(new Quat('=',this.semanticParser.flag,'',this.stack.items[this.stack.items.length - 1]));
 
     }
 }
+
+a = function(){
+    this.b = 5;
+    this.c = function(){
+        this.b = 3;
+        this.d();
+    }
+    this.d = function(){
+        console.log(this.b);
+    }
+}
+let test = new a;
+test.c();

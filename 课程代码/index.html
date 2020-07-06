@@ -95,9 +95,10 @@
     /run 后的弹窗/
     document.getElementById("frame").style.display="none";
     function complie() {   /<= 在这里开始接/
-        let p = new TokenParser();      //建立一个空对象
-        p.load(PreProcessor());
+        //let p = new TokenParser();      //建立一个空对象
+        //p.load(PreProcessor());
         var syntaxParser = new SyntaxParser();
+        syntaxParser.tokenParser.load(PreProcessor());
         syntaxParser.grammarList();
     }
     function show() { /点击运行时执行的函数/
