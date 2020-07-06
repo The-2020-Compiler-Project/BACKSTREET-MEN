@@ -3,7 +3,9 @@ Bugs = new (function() {
      * 错误信息收集对象，通过调用 log 方法将信息收集在 msgs 属性中
      * 该对象本身可迭代，可通过 for...of 进行循环
      */
-    this.msgs = [];
+    this.init = function() {
+        this.msgs = [];
+    }
     this.log = function(lineno, column, msg) {
         /**
          * lineno: 行号，Number 类型
@@ -278,61 +280,5 @@ VirtualMachine.exec = new Map([
 ]);
 
 
-function testBench(fstr) {
-    /**
-     * 测试虚拟机的函数，之后可以删除
-     */
-    function Quat(operation, param1, param2, result) { /强哥将传过来的变量/
-        /**
-         * 临时创建了一个四元式对象 :-P
-         */
-        this.operation = operation;
-        this.param1 = param1;
-        this.param2 = param2;
-        this.result = result;
-    }
-
-    let vm = VirtualMachine;
-
-    SymbolTable.init();
-   / 模拟强哥的语义动作，向符号表中插入一个纸带对象，因为它在运行环境时的 init 不会被删掉也不会添加新的 /
-
-    SymbolTable.insertSymbol("output", "tape", "");
-    console.log('语义分析结束的output:', SymbolTable.tapes.get('output')); 
-
-
-    /**
-     * FOF 源代码如下:
-     *  tape output;
-     *  char tmp = '*';
-     *
-     *  output = tmp; output->; 移到下一格
-     *  output = 'H'; output->;
-     *  output = 'i'; output->;
-     *
-     *  exit 0;
-     */
-    vm.load(fstr);
-
-    function Loop() {
-        try {
-            console.log("运行指令：", vm.getNowInstruction());
-            vm.step();
-            let tape = SymbolTable.tapes.get('output'); 
-            console.table({tapeData: tape.value.tapeData});
-            var str = tape.value.tapeData.join(" ");
-            document.getElementById('name').innerHTML = tape.value.name;
-            document.getElementById("tape1").innerHTML = str;
-            document.getElementById("pointer").innerHTML = tape.value.pointer 
-
-            console.log(` ${tape.value.name}: pointer = ${tape.value.pointer}`);
-        } catch (RangeError) {
-            console.log(`运行结束，退出状态为 ${vm.endState} (${vm.endState===-1 ? "正常退出" : "异常退出"})`);
-            return
-        }
-        setTimeout(Loop, 500);
-    }
-
-    Loop();
-}
+var vm = VirtualMachine;
 

@@ -27,8 +27,9 @@ SyntaxParser = function(){
         this.next = undefined;
         this.stack.clear();
         this.quatCreate.init();
-        this.tokenParser = tokenParser;
-        this.sp = semanticParser.init();
+        this.tokenParser = new TokenParser;
+        this.sp = new SemanticParser();
+        this.sp.init();
     }
 
     this.grammar = function(){

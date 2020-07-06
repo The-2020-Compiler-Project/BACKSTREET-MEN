@@ -37,20 +37,27 @@
             </div>
             <div class="window">
                 <div id="tape">
-                    <div id="name"></div>
-                    <div id="pointer"></div>
-                    <div id=tape1 class="tape"></div>
+                    <!--这一块应该是用js加的-->
+                    <div style="display: block">
+                        <div id="name"><span>  </span></div>
+                        <div id="pointer"></div>
+                    </div>
+                    <div style="display: block">
+                        <div id=tape1 class="tape"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 <script type="text/javascript">
+    //能写tape
     $("textarea").on(
     'keydown',
     function(e) {
         if (e.keyCode == 9) {
             e.preventDefault();
-            var indent = '    ';
+            var indent = '    '; 
             var start = this.selectionStart;
             var end = this.selectionEnd;
             var selected = window.getSelection().toString();
@@ -61,7 +68,7 @@
                     + selected.length);
         }
     });
-    /行号设置/
+    //行号设置
     var num = "";
     var btn = getId('btn');
     var text = getId('test');
@@ -91,25 +98,28 @@
     (function() {
         keyUp();
     })();
-
-    /run 后的弹窗/
+    var quat = [];
     document.getElementById("frame").style.display="none";
-    function complie() {   /<= 在这里开始接/
-        //let p = new TokenParser();      //建立一个空对象
-        //p.load(PreProcessor());
-        var syntaxParser = new SyntaxParser();
-        syntaxParser.tokenParser.load(PreProcessor());
+    function complie() {   //<= 在这里开始接
+        Bugs.init();
+        let p = new TokenParser();      //建立一个空对象
+        p.init(PreProcessor());
+        let syntaxParser = new SyntaxParser();
+        syntaxParser.init(p);
         syntaxParser.grammarList();
+        quat = syntaxParser.quatCreate.quat;
     }
-    function show() { /点击运行时执行的函数/
-        document.getElementById("frame").style.display="";
+    function show() { //点击运行时执行的函数
+        if(quat.length !== 0){
+            document.getElementById("frame").style.display="";
+            vm.load(quat);
+            SymbolTable.init();
+        }
+        else
+            alert("You should build first");
     }
 
     function next() {
-        let vm = VirtualMachine;
-        vm.load(syntaxParser.quatCreate.quat);
-        SymbolTable.init();
-       / 模拟强哥的语义动作，向符号表中插入一个纸带对象，因为它在运行环境时的 init 不会被删掉也不会添加新的 /
 
         SymbolTable.insertSymbol("output", "tape", "");
         console.log('语义分析结束的output:', SymbolTable.tapes.get('output')); 
@@ -133,6 +143,7 @@
     }
 
     function hide() {
+        quat = []; 
         document.getElementById("frame").style.display="none";
     }
 </script>
