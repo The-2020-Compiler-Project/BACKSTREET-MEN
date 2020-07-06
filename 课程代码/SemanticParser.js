@@ -39,9 +39,9 @@ function Quat(operation, param1, param2, result) {
     this.result = result;
 }
 function SemanticParser(){
-
-    this.flag = undefined;   //在声明语句中存放标志
-
+    this.init = function() {
+        this.flag = undefined;   //在声明语句中存放标志
+    }
     this.judgeState = function(next,sp){
         /*  仅在声明语句时对被声明的变量使用
         *   声明语句的语义动作不调用查找的方法，直接调用插入并检测它的返回值
@@ -115,10 +115,11 @@ function SemanticParser(){
 }
 function QuatCreate() {
 
-    this.quat = [];
-    this.stack = new Stack();
-    this.semanticParser = new SemanticParser();
-
+    this.init = function() {
+        this.quat = [];
+        this.stack = new Stack();
+        this.semanticParser = new SemanticParser();
+    }
     this.quatEvaluate = function(){
         /* 生成赋值语句四元式
         *
@@ -164,15 +165,3 @@ function QuatCreate() {
     }
 }
 
-a = function(){
-    this.b = 5;
-    this.c = function(){
-        this.b = 3;
-        this.d();
-    }
-    this.d = function(){
-        console.log(this.b);
-    }
-}
-let test = new a;
-test.c();
