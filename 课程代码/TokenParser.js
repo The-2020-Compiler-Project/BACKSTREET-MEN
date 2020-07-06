@@ -100,7 +100,7 @@ function TokenParser() {
             this.error = "SytnaxError:It has been unmeaning";   //用于声明字符常量少引号的错误
             this.judgeKW();
             if(this.returnNum === 1){               //如果等于1说明是关键字
-                console.log(new Token(this.value,this.type,this.row,this.line));
+                //console.log(new Token(this.value,this.type,this.row,this.line));
                 return new Token(this.value,this.type,this.row,this.line);
             }
             else if(this.returnNum === - 2){        //如果等于-2说明换行符是在最后
@@ -109,21 +109,21 @@ function TokenParser() {
 
             this.judgeIT();
             if(this.returnNum === 2){               //如果等于2说明是标识符
-                console.log(new Token(this.value,this.type,this.row,this.line));
+                //console.log(new Token(this.value,this.type,this.row,this.line));
                 return new Token(this.value,this.type,this.row,this.line);
             }
 
             this.judgeNumCT();
 
             if(this.returnNum === 3){               //如果等于3说明是数字常量
-                console.log(new Token(this.value,this.type,this.row,this.line));
+                //console.log(new Token(this.value,this.type,this.row,this.line));
                 return new Token(this.value,this.type,this.row,this.line);
             }
 
             this.judgeCharCT();
 
             if(this.returnNum === 4){               //如果等于4说明是字符常量
-                console.log(new Token(this.value,this.type,this.row,this.line));
+                //console.log(new Token(this.value,this.type,this.row,this.line));
                 return new Token(this.value,this.type,this.row,this.line);
             }
             else if(this.returnNum === -1){         //如果等于-1说明少了个单引号，则抛出异常
@@ -135,7 +135,7 @@ function TokenParser() {
             this.judgeStringCT();
 
             if(this.returnNum === 5){               //如果等于5说明事字符串常量
-                console.log(new Token(this.value,this.type,this.row,this.line));
+                //console.log(new Token(this.value,this.type,this.row,this.line));
                 return new Token(this.value,this.type,this.row,this.line);
             }
             else if(this.returnNum === -1){         //如果等于-1说明少了一个双引号，则抛出异常
@@ -145,14 +145,14 @@ function TokenParser() {
             }
             this.judgeDT();
             if(this.returnNum === 6){               //如果等于6则说明是界符
-                console.log(new Token(this.value,this.type,this.row,this.line));
+                //console.log(new Token(this.value,this.type,this.row,this.line));
                 return new Token(this.value,this.type,this.row,this.line);
 
             }
         }
         if(this.returnNum!==-1){
             this.location++;
-            console.log("Over!");
+            //console.log("Over!");
             return "Over!";
         }
 
