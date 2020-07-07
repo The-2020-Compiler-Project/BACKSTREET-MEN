@@ -108,19 +108,17 @@
     document.getElementById("frame").style.display="none";
     function complie() {   //<= 在这里开始接
         Bugs.init();
-        console.log(Bugs.msgs.length);
         p.init(PreProcessor());
         SymbolTable.init();
         syntaxParser.init(p, semanticParser, quatCreate, stack);
         syntaxParser.grammarList();
         quat = syntaxParser.quatCreate.quat;
-        console.log(`四元式: ${quat}`);
+        console.log("四元式：");
         for(let i = 0; i < quat.length; i++)
         {
             console.log(quat[i]);
         }
-        console.log(quat.length);
-        console.log(Bugs.msgs.length);
+        console.log("bugs:");
         console.log(Bugs.msgs);
     }
     function show() { //点击运行时执行的函数
@@ -134,20 +132,20 @@
 
     function next() {
 
-        SymbolTable.insertSymbol("output", "tape", "");
-        console.log('语义分析结束的output:', SymbolTable.tapes.get('output')); 
-
         try {
-            console.log("运行指令：", vm.getNowInstruction());
-            vm.step();
-            let tape = SymbolTable.tapes.get('output'); 
-            console.table({tapeData: tape.value.tapeData});
-            var str = tape.value.tapeData.join(" ");
-            document.getElementById('name').innerHTML = tape.value.name;
-            document.getElementById("tape1").innerHTML = str;
-            document.getElementById("pointer").innerHTML = tape.value.pointer 
-
-            console.log(` ${tape.value.name}: pointer = ${tape.value.pointer}`);
+            let tape;
+            for(let key of SymbolTable.tapes.keys())
+            {
+                tape = SymbolTable.tapes.get(key);
+                console.log("运行指令：", vm.getNowInstruction());
+                vm.step();
+                console.table({tapeData: tape.value.tapeData});
+                let str = tape.value.tapeData.join(" ");
+                document.getElementById('name').innerHTML = tape.value.name;
+                document.getElementById("tape1").innerHTML = str;
+                document.getElementById("pointer").innerHTML = tape.value.pointer 
+                console.log(` ${tape.value.name}: pointer = ${tape.value.pointer}`);
+            }
         } catch (RangeError) {
             console.log(`运行结束，退出状态为 ${vm.endState} (${vm.endState===-1 ? "正常退出" : "异常退出"})`);
             return
@@ -158,6 +156,9 @@
     function hide() {
         quat = []; 
         document.getElementById("frame").style.display="none";
+        document.getElementById('name').innerHTML = "";
+        document.getElementById("tape1").innerHTML = "";
+        document.getElementById("pointer").innerHTML = ""; 
     }
 </script>
 </body>

@@ -88,7 +88,6 @@ function TokenParser() {
 
     this.load =function(str) {   //用于接收预处理后的数组的方法
         this.str = str;
-        console.log(this.str);
     }
 
     this.next = function () {   //用于返回给语法分析的方法
@@ -347,13 +346,11 @@ function TokenParser() {
 
                 }
                 this.value = arr.join('');       //将arr的内容以字符串的形式保存到value中
-                console.log(this.value);
                 this.it = this.initITAutoMachine();//调用自动机，这里用一个成员属性来调用，节省了资源
 
                 if (this.it.judge(this.value) === true) {       //如果判断成功，该it是标识符，则对相应的量进行赋值
                     this.type = "IT";
                     this.line++;
-                    console.log("12345");
                     this.returnNum = 2;             //识别标识符成功，returnNum值为4
                 }
                 else {                          //如果没有识别成功，则返回到扫描前的位置

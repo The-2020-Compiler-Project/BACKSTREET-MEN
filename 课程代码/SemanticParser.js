@@ -42,7 +42,7 @@ function SemanticParser(){
     this.init = function() {
         this.flag = undefined;   //在声明语句中存放标志
     }
-    this.judgeState = function(next,sp){
+    this.judgeState = function(next,flag){
         /*  仅在声明语句时对被声明的变量使用
         *   声明语句的语义动作不调用查找的方法，直接调用插入并检测它的返回值
         *   返回值 : 如果是true表示是新变量并已经插入到符号表内，如果是false则表示已经定义过
@@ -51,9 +51,9 @@ function SemanticParser(){
         */
         this.temp = undefined;
 
-        this.temp = SymbolTable.insertSymbol(next.value,sp.flag,'');    //这里的value和词法分析的value代表的意义不同
+        this.temp = SymbolTable.insertSymbol(next.value,flag,'');    //这里的value和词法分析的value代表的意义不同
         if(this.temp === false){
-            Bugs.log(next.line,next.row,"SemanticError: 重复声明！ ");
+            Bugs.log(next.row,next.line,"SemanticError: 重复声明！ ");
         }
     }
     this.judgeVarDeclared = function(next){
@@ -67,7 +67,7 @@ function SemanticParser(){
         this.temp = SymbolTable.getVarSymbolInfo(next.value);
         if(this.temp === undefined){
             //bug 类，变量未经声明使用
-            Bugs.log(next.line,next.row,"SemanticError: 未经声明使用！ ");
+            Bugs.log(next.row,next.line,"SemanticError: 未经声明使用！ ");
         }
 
     }
@@ -81,7 +81,7 @@ function SemanticParser(){
         this.temp = SymbolTable.getTapeSymbolInfo(symbol);
         if(this.temp === undefined){
             //bug 类，纸带变量未经声明使用
-            Bugs.log(next.line,next.row,"SemanticError: 纸带变量未经声明使用！ ");
+            Bugs.log(next.row,next.line,"SemanticError: 纸带变量未经声明使用！ ");
 
         }
     }
@@ -96,18 +96,20 @@ function SemanticParser(){
         this.temp1 = SymbolTable.getVarSymbolInfo(symbol1);
         if(this.temp1 !== undefined){          //如果为普通变量
             this.temp2 = SymbolTable.getVarSymbolInfo(symbol2);
-            if(this.temp1.type!== this.temp2.type){
-                //bug类,两操作数类型不一致
-                Bugs.log(next.line,next.row,"SemanticError: 操作数类型不一致！ ");
+            if(this.temp2 !== undefined) {
+                if(this.temp1.type!== this.temp2.type){
+                    //bug类,两操作数类型不一致
+                    Bugs.log(next.row,next.line,"SemanticError: 操作数类型不一致！ ");
 
-            }
+                }
+            } 
         }
         else{     //如果为纸带变量
             this.temp1 = SymbolTable.getTapeSymbolInfo(symbol1);
             this.temp2 = SymbolTable.getTapeSymbolInfo(symbol2);
             if(this.temp1 === undefined || this.temp2 === undefined){
                 //bug类,两操作数类型不一致
-                Bugs.log(next.line,next.row,"SemanticError: 非纸带变量进行纸带移动操作！ ");
+                Bugs.log(next.row,next.line,"SemanticError: 非纸带变量进行纸带移动操作！ ");
 
             }
         }
@@ -163,7 +165,7 @@ function QuatCreate() {
         /*  生成声明语句四元式
          *  声明同时不进行赋值
          */
-        this.quat.push(new Quat('=',this.semanticParser.flag,'',this.stack.items[this.stack.items.length - 1]));
+        this.quat.push(new Quat('=','',this.semanticParser.flag,this.stack.items[this.stack.items.length - 1]));
 
     }
 }

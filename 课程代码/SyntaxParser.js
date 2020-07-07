@@ -10,9 +10,7 @@ SyntaxParser = function(){
          * 识别成功返回 "end"
          */
         this.next = this.tokenParser.next();
-        console.log(this.next);
         this.grammar();
-        console.log(this.next);
         var i = 0;
         while(this.next.value !== "Over!") {
             i ++;
@@ -42,9 +40,7 @@ SyntaxParser = function(){
             case "tape":
                 this.sp.flag = this.next.type;
                 this.next = this.tokenParser.next();
-                console.log(this.next);
                 this.state();
-                console.log(this.next);
                 break;
             case "IT":
                 this.stack.push(this.next.value);
@@ -58,11 +54,8 @@ SyntaxParser = function(){
             default:
                 Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处只能是标识符或关键字 ");
         }
-        console.log(this.next);
         if(this.next.value === ';'){
-            console.log(this.next);
             this.next = this.tokenParser.next();
-            console.log(this.next);
         }
         else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少; ");
     }
@@ -105,7 +98,6 @@ SyntaxParser = function(){
         // 识别文法中的sub
         if(this.next.type === "IT"){
             this.sp.judgeState(this.next,this.sp.flag);
-            console.log(this.sp.flag);
             this.stack.push(this.next.value);
             this.next = this.tokenParser.next();
             this.operateOne();
