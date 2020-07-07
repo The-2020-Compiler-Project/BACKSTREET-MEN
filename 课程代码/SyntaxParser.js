@@ -3,31 +3,29 @@ SyntaxParser = function(){
      * 通过调用词法分析的next接口得到token
      * 通过递归下降方法分析语法
      * 通过语义分析的接口实现语义动作
-     */
-    this.next = undefined;
-    this.tokenParser = new TokenParser();
-    this.sp = new SemanticParser(); 
-    this.stack = new Stack();
-    this.quatCreate = new QuatCreate();
+     */  
     this.grammarList = function(){
         /* 识别<语句表>
          * 1.0版本作为主程序需要先调用next
          * 识别成功返回 "end"
          */
         this.next = this.tokenParser.next();
+        console.log(this.next);
         this.grammar();
-
+        console.log(this.next);
         while(this.next.value !== "Over!") {
+            console.log(this.next.value);
             this.grammar();
         }
         console.log("识别完成");
     }
 
     this.init = function(tokenParser){
-        this.next = undefined;
+        this.quatCreate = new QuatCreate()
+        this.stack = new Stack();
         this.stack.clear();
         this.quatCreate.init();
-        this.tokenParser = new TokenParser;
+        this.tokenParser = tokenParser;
         this.sp = new SemanticParser();
         this.sp.init();
     }
@@ -41,7 +39,9 @@ SyntaxParser = function(){
             case "tape":
                 this.sp.flag = this.next.type;
                 this.next = this.tokenParser.next();
+                console.log(this.next);
                 this.state();
+                console.log(this.next);
                 break;
             case "IT":
                 this.stack.push(this.next.type);
@@ -57,6 +57,7 @@ SyntaxParser = function(){
         }
         if(this.next.value === ';'){
             this.next = this.tokenParser.next();
+            console.log(this.next);
         }
         else Bugs.log(this.next.line,this.next.row,"SyntaxError: 此处缺少; ");
     }

@@ -88,6 +88,7 @@ function TokenParser() {
 
     this.load =function(str) {   //用于接收预处理后的数组的方法
         this.str = str;
+        console.log(this.str);
     }
 
     this.next = function () {   //用于返回给语法分析的方法
@@ -103,7 +104,6 @@ function TokenParser() {
                 return new Token(this.value,this.type,this.row,this.line);
             }
             else if(this.returnNum === - 2){        //如果等于-2说明换行符是在最后
-                return ;
             }
 
             this.judgeIT();
@@ -150,9 +150,11 @@ function TokenParser() {
             }
         }
         if(this.returnNum!==-1){
+            console.log("123");
             this.location++;
+            this.value = "Over!";
             //console.log("Over!");
-            return "Over!";
+            return new Token(this.value,this.type,this.row,this.line);;
         }
 
     }
