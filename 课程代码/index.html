@@ -99,26 +99,34 @@
         keyUp();
     })();
     var quat = [];
+    var p = new TokenParser();      
+    var syntaxParser = new SyntaxParser();
+    var semanticParser = new SemanticParser();
+    var quatCreate = new QuatCreate();
+    var stack = new Stack();
+    var vm = VirtualMachine;
     document.getElementById("frame").style.display="none";
     function complie() {   //<= 在这里开始接
         Bugs.init();
         console.log(Bugs.msgs.length);
-        let p = new TokenParser();      //建立一个空对象
         p.init(PreProcessor());
-        let syntaxParser = new SyntaxParser();
-        syntaxParser.init(p);
+        SymbolTable.init();
+        syntaxParser.init(p, semanticParser, quatCreate, stack);
         syntaxParser.grammarList();
         quat = syntaxParser.quatCreate.quat;
         console.log(`四元式: ${quat}`);
+        for(let i = 0; i < quat.length; i++)
+        {
+            console.log(quat[i]);
+        }
         console.log(quat.length);
         console.log(Bugs.msgs.length);
         console.log(Bugs.msgs);
     }
     function show() { //点击运行时执行的函数
-        if(quat.length !== 0 && Bugs.msgs.length === 0){
+        if(quat.length !== 0){
             document.getElementById("frame").style.display="";
             vm.load(quat);
-            SymbolTable.init();
         }
         else
             alert("You should build first");

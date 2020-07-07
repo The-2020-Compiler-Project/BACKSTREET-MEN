@@ -103,7 +103,8 @@ function TokenParser() {
                 //console.log(new Token(this.value,this.type,this.row,this.line));
                 return new Token(this.value,this.type,this.row,this.line);
             }
-            else if(this.returnNum === - 2){        //如果等于-2说明换行符是在最后
+            else if(this.returnNum === - 2){
+                return new Token("Over!", "Over!", this.row, this.line);                               //如果等于-2说明换行符是在最后
             }
 
             this.judgeIT();
@@ -150,7 +151,6 @@ function TokenParser() {
             }
         }
         if(this.returnNum!==-1){
-            console.log("123");
             this.location++;
             this.value = "Over!";
             //console.log("Over!");
@@ -302,7 +302,7 @@ function TokenParser() {
 
             if(this.returnNum === -1){
 
-                Bugs.log(this.num,this.line,"您输入的字符常量少了一个引号");
+                Bugs.log(this.row,this.line,"您输入的字符常量少了一个引号");
                 return;
             }
         }
@@ -347,11 +347,13 @@ function TokenParser() {
 
                 }
                 this.value = arr.join('');       //将arr的内容以字符串的形式保存到value中
+                console.log(this.value);
                 this.it = this.initITAutoMachine();//调用自动机，这里用一个成员属性来调用，节省了资源
 
                 if (this.it.judge(this.value) === true) {       //如果判断成功，该it是标识符，则对相应的量进行赋值
                     this.type = "IT";
                     this.line++;
+                    console.log("12345");
                     this.returnNum = 2;             //识别标识符成功，returnNum值为4
                 }
                 else {                          //如果没有识别成功，则返回到扫描前的位置

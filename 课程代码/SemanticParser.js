@@ -114,11 +114,14 @@ function SemanticParser(){
     }
 }
 function QuatCreate() {
-
-    this.init = function() {
+    this.stack = new Stack();
+    this.semanticParser = new SemanticParser();
+    this.init = function(stack, semanticParser) {
+        this.stack = stack;
+        this.semanticParser = semanticParser;
+        this.stack.clear();
+        this.semanticParser.init();
         this.quat = [];
-        this.stack = new Stack();
-        this.semanticParser = new SemanticParser();
     }
     this.quatEvaluate = function(){
         /* 生成赋值语句四元式
