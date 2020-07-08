@@ -13,8 +13,6 @@ SyntaxParser = function(){
         this.grammar();
         while(this.next.value !== "Over!") {
             this.grammar();
-            if(i === 10)
-                break;
         }
         console.log("识别完成");
     }
