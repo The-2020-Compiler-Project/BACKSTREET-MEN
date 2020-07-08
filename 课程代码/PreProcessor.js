@@ -4,7 +4,6 @@ function PreProcessor() {
 	let textArea = $('#test').val();
 
  	code = textArea.split("");
-	console.log(code);
 	let item1 = 1;
  	let item2 = 1;
 	/清理注释/
@@ -29,7 +28,6 @@ function PreProcessor() {
 	}
 	if(code[code.length-1] != '\n')
 		code.push('\n');
-	console.log(code);
 	return code;
 }
 

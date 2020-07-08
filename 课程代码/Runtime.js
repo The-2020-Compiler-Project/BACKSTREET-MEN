@@ -280,5 +280,4 @@ VirtualMachine.exec = new Map([
 ]);
 
 
-var vm = VirtualMachine;
 

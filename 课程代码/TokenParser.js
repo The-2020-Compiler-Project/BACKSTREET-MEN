@@ -1,5 +1,3 @@
-
-let test = "char a;\na = '0';".split('');
 //Token类
 function Token(value,type,row,line) {              //用于给语法分析返回数据
     this.value = value;
@@ -98,31 +96,30 @@ function TokenParser() {
             this.error = "SytnaxError:It has been unmeaning";   //用于声明字符常量少引号的错误
             this.judgeKW();
             if(this.returnNum === 1){               //如果等于1说明是关键字
-                console.log(new Token(this.value,this.type,this.row,this.line));
+                //console.log(new Token(this.value,this.type,this.row,this.line));
                 return new Token(this.value,this.type,this.row,this.line);
             }
-            else if(this.returnNum === - 2){        //如果等于-2说明换行符是在最后
-                this.value = "Over!";
-                return new Token(this.value,this.value,this.row,this.line);
+            else if(this.returnNum === - 2){
+                return new Token("Over!", "Over!", this.row, this.line);                               //如果等于-2说明换行符是在最后
             }
 
             this.judgeIT();
             if(this.returnNum === 2){               //如果等于2说明是标识符
-                console.log(new Token(this.value,this.type,this.row,this.line));
+                //console.log(new Token(this.value,this.type,this.row,this.line));
                 return new Token(this.value,this.type,this.row,this.line);
             }
 
             this.judgeNumCT();
 
             if(this.returnNum === 3){               //如果等于3说明是数字常量
-                console.log(new Token(this.value,this.type,this.row,this.line));
+                //console.log(new Token(this.value,this.type,this.row,this.line));
                 return new Token(this.value,this.type,this.row,this.line);
             }
 
             this.judgeCharCT();
 
             if(this.returnNum === 4){               //如果等于4说明是字符常量
-                console.log(new Token(this.value,this.type,this.row,this.line));
+                //console.log(new Token(this.value,this.type,this.row,this.line));
                 return new Token(this.value,this.type,this.row,this.line);
             }
             else if(this.returnNum === -1){         //如果等于-1说明少了个单引号，则抛出异常
@@ -134,7 +131,7 @@ function TokenParser() {
             this.judgeStringCT();
 
             if(this.returnNum === 5){               //如果等于5说明事字符串常量
-                console.log(new Token(this.value,this.type,this.row,this.line));
+                //console.log(new Token(this.value,this.type,this.row,this.line));
                 return new Token(this.value,this.type,this.row,this.line);
             }
             else if(this.returnNum === -1){         //如果等于-1说明少了一个双引号，则抛出异常
@@ -144,7 +141,7 @@ function TokenParser() {
             }
             this.judgeDT();
             if(this.returnNum === 6){               //如果等于6则说明是界符
-                console.log(new Token(this.value,this.type,this.row,this.line));
+                //console.log(new Token(this.value,this.type,this.row,this.line));
                 return new Token(this.value,this.type,this.row,this.line);
 
             }
@@ -152,8 +149,8 @@ function TokenParser() {
         if(this.returnNum!==-1){
             this.location++;
             this.value = "Over!";
-            console.log(this.value);
-            return this.value;
+            //console.log("Over!");
+            return new Token(this.value,this.type,this.row,this.line);;
         }
 
     }
@@ -207,38 +204,38 @@ function TokenParser() {
     }
 
 
-    this.judgeNumCT = function () {            //判断数字类型常量的函数
+        this.judgeNumCT = function () {            //判断数字类型常量的函数
 
-        if((this.str[this.location]>='0' && this.str[this.location]<='9')||this.str[this.location]==='.'){
+            if((this.str[this.location]>='0' && this.str[this.location]<='9')||this.str[this.location]==='.'){
 
-            let arr = [];
-            let k = 0;//arr数组的下标
-            while (((this.str[this.location]>='0' && this.str[this.location]<='9')||this.str[this.location]==='.'||this.str[this.location]==='-'||this.str[this.location]==='+'|| this.str[this.location]==='E'||this.str[this.location]==='e')&&(this.str[this.location] !== ' ' && this.location !== this.str.length)){
+                let arr = [];
+                let k = 0;//arr数组的下标
+                while (((this.str[this.location]>='0' && this.str[this.location]<='9')||this.str[this.location]==='.'||this.str[this.location]==='-'||this.str[this.location]==='+'|| this.str[this.location]==='E'||this.str[this.location]==='e')&&(this.str[this.location] !== ' ' && this.location !== this.str.length)){
 
-                arr[k] = this.str[this.location];
-                this.location++;
-                k++;
-            }
-            this.value = arr.join('');     //将arr的内容以字符串的形式保存到value中
+                      arr[k] = this.str[this.location];
+                      this.location++;
+                      k++;
+                }
+                this.value = arr.join('');     //将arr的内容以字符串的形式保存到value中
 
-            this.num = this.initNumAutoMachine();
+                this.num = this.initNumAutoMachine();
 
-            if(this.num.judge(this.value)===true){
-                this.type="CT";
-                this.line ++;
-                this.returnNum = 3;             //该单词为数字
-            }
-            else{
-                this.type="CT";
-                this.line++;
-                this.returnNum = 3;
-                Bugs.log(this.row,this.line,"该数字常量有错误呦-");             //出现数字错误 要进入Bug类中
+                if(this.num.judge(this.value)===true){
+                    this.type="CT";
+                    this.line ++;
+                    this.returnNum = 3;             //该单词为数字
+                }
+                else{
+                    this.type="CT";
+                    this.line++;
+                    this.returnNum = 3;
+                    Bugs.log(this.row,this.line,"该数字常量有错误呦-");             //出现数字错误 要进入Bug类中
+                }
             }
         }
-    }
 
 
-    this.judgeCharCT = function () {       //判断字符常量
+        this.judgeCharCT = function () {       //判断字符常量
         let result = true;
 
         if(this.str[this.location]==="'") {     //判断第一个符号是否为'
@@ -252,15 +249,15 @@ function TokenParser() {
 
                         this.location++;
                         arr.push(this.str[this.location++]);//将\后面的字符插入arr中
-                        if(this.str[this.location]==="'"){      //判断是否可以结束该字符的判断
-                            arr.push("'");
-                            this.location++;
-                            this.value = arr.join('');
-                            this.type = "CC";
-                            this.line ++;
-                            this.returnNum = 4;
-                            return ;
-                        }
+                            if(this.str[this.location]==="'"){      //判断是否可以结束该字符的判断
+                                arr.push("'");
+                                this.location++;
+                                this.value = arr.join('');
+                                this.type = "CC";
+                                this.line ++;
+                                this.returnNum = 4;
+                                return ;
+                            }
 
                     }
                     else{                       //当第一个字符不是\时，区别就是\不插入arr中，若不是\则插入arr中
@@ -333,135 +330,134 @@ function TokenParser() {
     }
 
 
-    this.judgeIT = function () {    //判断标识符的函数
+        this.judgeIT = function () {    //判断标识符的函数
 
-        if (this.str[this.location] === '_' || (this.str[this.location] >= 'a' && this.str[this.location] <= 'z') || (this.str[this.location] >= 'A' && this.str[this.location] <= 'Z')) {
+            if (this.str[this.location] === '_' || (this.str[this.location] >= 'a' && this.str[this.location] <= 'z') || (this.str[this.location] >= 'A' && this.str[this.location] <= 'Z')) {
+
+                let arr = [];
+                let k = 0;
+
+                while (((this.str[this.location] >= '0' && this.str[this.location] <= '9') || this.str[this.location] === '_' || (this.str[this.location] >= 'a' && this.str[this.location] <= 'z') || (this.str[this.location] >= 'A' && this.str[this.location] <= 'Z')) && (this.str[this.location] !== ' ' && this.location !== this.str.length)) {
+
+                    arr[k++] = this.str[this.location++];
+
+                }
+                this.value = arr.join('');       //将arr的内容以字符串的形式保存到value中
+                this.it = this.initITAutoMachine();//调用自动机，这里用一个成员属性来调用，节省了资源
+
+                if (this.it.judge(this.value) === true) {       //如果判断成功，该it是标识符，则对相应的量进行赋值
+                    this.type = "IT";
+                    this.line++;
+                    this.returnNum = 2;             //识别标识符成功，returnNum值为4
+                }
+                else {                          //如果没有识别成功，则返回到扫描前的位置
+                    this.location = this.location - k;
+                }
+
+            }
+
+        }
+
+
+        this.judgeDT = function () {        //识别DT数组中的界符
 
             let arr = [];
-            let k = 0;
+            let k = 0;       //arr的下标
+            arr[k++] = this.str[this.location]; //将当前字符赋给arr
 
-            while (((this.str[this.location] >= '0' && this.str[this.location] <= '9') || this.str[this.location] === '_' || (this.str[this.location] >= 'a' && this.str[this.location] <= 'z') || (this.str[this.location] >= 'A' && this.str[this.location] <= 'Z')) && (this.str[this.location] !== ' ' && this.location !== this.str.length)) {
+            if(((this.str[this.location]==='-'||this.str[this.location]==='<')&&this.str[this.location+1]==='-')||((this.str[this.location]==='-')&&this.str[this.location+1]==='>')||(this.str[this.location]==='+'&&this.str[this.location+1]==='+')){   //判断是否为--或者是<-
 
-                arr[k++] = this.str[this.location++];
+                this.location++;
+                arr[k++] = this.str[this.location++];   //没有越界，则将第二个字符赋给arr
+                this.value = arr.join('');          //将arr赋给value
+            }
+            else {
+                this.value = arr.join('');              //将arr赋给value
+                this.location++;                        //将当前扫描的地方加一
 
             }
-            this.value = arr.join('');       //将arr的内容以字符串的形式保存到value中
-            this.it = this.initITAutoMachine();//调用自动机，这里用一个成员属性来调用，节省了资源
 
-            if (this.it.judge(this.value) === true) {       //如果判断成功，该it是标识符，则对相应的量进行赋值
-                this.type = "IT";
-                this.line++;
-                this.returnNum = 2;             //识别标识符成功，returnNum值为4
+            for(let dt of this.DT){                     //遍历数组
+
+                if(this.value === dt){                  //判断是否在DT数组中
+                    this.returnNum = 6;                 //为界符，returnNum置为5
+                    this.type = "DT";
+                    this.line++;
+                    break;                              //若发现在DT数组中则不必继续搜索
+                }
             }
-            else {                          //如果没有识别成功，则返回到扫描前的位置
-                this.location = this.location - k;
+
+            if(this.returnNum!==6){
+               Bugs.log(this.row,this.line,"您输入的界符有错误");
             }
 
         }
 
-    }
 
 
-    this.judgeDT = function () {        //识别DT数组中的界符
+        this.initNumAutoMachine = function () {       //识别数字的自动机,返回一个AutoMachine类的数据
+            let num = new AutoMachine();
+            num.makePair(0, '.', 3);
+            num.makePair(1, '.', 2);
 
-        let arr = [];
-        let k = 0;       //arr的下标
-        arr[k++] = this.str[this.location]; //将当前字符赋给arr
-
-        if(((this.str[this.location]==='-'||this.str[this.location]==='<')&&this.str[this.location+1]==='-')||((this.str[this.location]==='-')&&this.str[this.location+1]==='>')||(this.str[this.location]==='+'&&this.str[this.location+1]==='+')){   //判断是否为--或者是<-
-
-            this.location++;
-            arr[k++] = this.str[this.location++];   //没有越界，则将第二个字符赋给arr
-            this.value = arr.join('');          //将arr赋给value
-        }
-        else {
-            this.value = arr.join('');              //将arr赋给value
-            this.location++;                        //将当前扫描的地方加一
-
-        }
-
-        for(let dt of this.DT){                     //遍历数组
-
-            if(this.value === dt){                  //判断是否在DT数组中
-                this.returnNum = 6;                 //为界符，returnNum置为5
-                this.type = "DT";
-                this.line++;
-                break;                              //若发现在DT数组中则不必继续搜索
+            for (let j = 0; j < 10; j++) {      //根据状态转换图进行相应的绑定
+                let temp = j.toString();
+                num.makePair(0, temp, 1);
+                num.makePair(1, temp, 2);
+                num.makePair(2, temp, 2);
+                num.makePair(3, temp, 2);
+                num.makePair(4, temp, 6);
+                num.makePair(5, temp, 6);
+                num.makePair(6, temp, 6);
             }
+            num.makePair(2, 'E', 4);
+            num.makePair(2, 'e', 4);
+            num.makePair(4, '+', 5);
+            num.makePair(4, '-', 5);
+
+            num.setEndState(1, 2, 6);       //将1、2、6状态设为终止状态
+
+            return num;
         }
 
-        if(this.returnNum!==6){
-            Bugs.log(this.row,this.line,"您输入的界符有错误");
+
+       this.initITAutoMachine = function () {
+            let it = new AutoMachine();
+
+            it.makePair(0, '-', 2);
+            it.makePair(1, '_', 2);
+
+            let arr = [];               //用于存放a-z的数组
+
+           for (let j = 0; j < 26; j++) {
+                let alpha = String.fromCharCode(65 + j);  //String的方法转化为字母A-Z
+                arr.push(alpha);
+            }
+
+            for (let j = 0; j < 26; j++) {
+                let alpha = String.fromCharCode(97 + j);//转化为a-z
+                arr.push(alpha);
+            }
+
+            for (let j = 0; j < arr.length; j++) {
+                it.makePair(0, arr[j], 1);
+                it.makePair(1, arr[j], 1);
+                it.makePair(2, arr[j], 2);
+            }
+
+            for (let j = 0; j < 9; j++) {
+                let temp = j.toString();
+                it.makePair(1, temp, 1);
+                it.makePair(2, temp, 2);
+            }
+
+            it.setEndState(1, 2);
+            return it;
         }
-
-    }
-
-
-
-    this.initNumAutoMachine = function () {       //识别数字的自动机,返回一个AutoMachine类的数据
-        let num = new AutoMachine();
-        num.makePair(0, '.', 3);
-        num.makePair(1, '.', 2);
-
-        for (let j = 0; j < 10; j++) {      //根据状态转换图进行相应的绑定
-            let temp = j.toString();
-            num.makePair(0, temp, 1);
-            num.makePair(1, temp, 2);
-            num.makePair(2, temp, 2);
-            num.makePair(3, temp, 2);
-            num.makePair(4, temp, 6);
-            num.makePair(5, temp, 6);
-            num.makePair(6, temp, 6);
-        }
-        num.makePair(2, 'E', 4);
-        num.makePair(2, 'e', 4);
-        num.makePair(4, '+', 5);
-        num.makePair(4, '-', 5);
-
-        num.setEndState(1, 2, 6);       //将1、2、6状态设为终止状态
-
-        return num;
-    }
-
-
-    this.initITAutoMachine = function () {
-        let it = new AutoMachine();
-
-        it.makePair(0, '-', 2);
-        it.makePair(1, '_', 2);
-
-        let arr = [];               //用于存放a-z的数组
-
-        for (let j = 0; j < 26; j++) {
-            let alpha = String.fromCharCode(65 + j);  //String的方法转化为字母A-Z
-            arr.push(alpha);
-        }
-
-        for (let j = 0; j < 26; j++) {
-            let alpha = String.fromCharCode(97 + j);//转化为a-z
-            arr.push(alpha);
-        }
-
-        for (let j = 0; j < arr.length; j++) {
-            it.makePair(0, arr[j], 1);
-            it.makePair(1, arr[j], 1);
-            it.makePair(2, arr[j], 2);
-        }
-
-        for (let j = 0; j < 9; j++) {
-            let temp = j.toString();
-            it.makePair(1, temp, 1);
-            it.makePair(2, temp, 2);
-        }
-
-        it.setEndState(1, 2);
-        return it;
-    }
 
 }
-
-let p = new TokenParser();      //建立一个空对象
-p.init(test);
+/*let p = new TokenParser();      //建立一个空对象
+p.init();
 while (p.location <= p.str.length){
     p.next();
-}
+}*/

@@ -3,32 +3,29 @@ SyntaxParser = function(){
      * 通过调用词法分析的next接口得到token
      * 通过递归下降方法分析语法
      * 通过语义分析的接口实现语义动作
-     */
-    this.next = undefined;
-    this.tokenParser = new TokenParser();
-    this.sp = new SemanticParser(); 
-    this.stack = new Stack();
-    this.quatCreate = new QuatCreate();
+     */  
     this.grammarList = function(){
         /* 识别<语句表>
          * 1.0版本作为主程序需要先调用next
-         * 识别成功返回 "end"
+         * 识别成功返回 "Over!"
          */
         this.next = this.tokenParser.next();
         this.grammar();
-
         while(this.next.value !== "Over!") {
             this.grammar();
+            if(i === 10)
+                break;
         }
         console.log("识别完成");
     }
 
-    this.init = function(tokenParser){
-        this.next = undefined;
+    this.init = function(tokenParser, semanticParser, quatCreate, stack){
+        this.stack = stack;
         this.stack.clear();
-        this.quatCreate.init();
-        this.tokenParser = new TokenParser;
-        this.sp = new SemanticParser();
+        this.quatCreate = quatCreate;
+        this.quatCreate.init(stack, semanticParser);
+        this.sp = semanticParser;
+        this.tokenParser = tokenParser;
         this.sp.init();
     }
 
@@ -44,7 +41,7 @@ SyntaxParser = function(){
                 this.state();
                 break;
             case "IT":
-                this.stack.push(this.next.type);
+                this.stack.push(this.next.value);
                 this.next = this.tokenParser.next();
                 this.evaluateOrMove();
                 break;
@@ -53,12 +50,12 @@ SyntaxParser = function(){
                 this.numConstant();
                 break;
             default:
-                Bugs.log(this.next.line,this.next.row,"SyntaxError: 此处只能是标识符或关键字 ");
+                Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处只能是标识符或关键字 ");
         }
         if(this.next.value === ';'){
             this.next = this.tokenParser.next();
         }
-        else Bugs.log(this.next.line,this.next.row,"SyntaxError: 此处缺少; ");
+        else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少; ");
     }
 
     this.state = function(){
@@ -78,7 +75,7 @@ SyntaxParser = function(){
     this.numConstant = function(){
         // 识别数字常量
         if(this.next.type !== "CT"){
-            Bugs.log(this.next.line,this.next.row,"SyntaxError: 此处只能是数字常量 ");
+            Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处只能是数字常量 ");
         }
         if(Number(this.next.value) === 0)
             this.quatCreate.quatExitNormally();
@@ -88,8 +85,8 @@ SyntaxParser = function(){
 
     this.strConstant = function(){
         // 识别字符常量
-        if(this.next.type !== "CS"){
-            Bugs.log(this.next.line,this.next.row,"SyntaxError: 此处只能是字符常量 ");
+        if(this.next.type !== "CC"){
+            Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处只能是字符常量 ");
         }
         else this.stack.push(this.next.value);
         this.next = this.tokenParser.next();
@@ -103,7 +100,7 @@ SyntaxParser = function(){
             this.next = this.tokenParser.next();
             this.operateOne();
         }
-        else Bugs.log(this.next.line,this.next.row,"SyntaxError: 此处缺少标识符 ");
+        else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少标识符 ");
     }
 
     this.operateOne = function(){
@@ -114,7 +111,6 @@ SyntaxParser = function(){
             this.quatCreate.quatDeclareEvaluate();
             this.stack.pop();
             this.stack.pop();
-            this.next = this.tokenParser.next();
         }
         else{
             this.quatCreate.quatDeclare();
@@ -131,7 +127,6 @@ SyntaxParser = function(){
                 this.quatCreate.quatEvaluate();
                 this.stack.pop();
                 this.stack.pop();
-                this.next = this.tokenParser.next();
                 break;
             case "->":
                 this.sp.judgeTapeDeclared(this.next,this.stack.items[this.stack.items.length-1]);
@@ -146,7 +141,7 @@ SyntaxParser = function(){
                 this.next = this.tokenParser.next();
                 break;
             default:
-                Bugs.log(this.next.line,this.next.row,"SyntaxError: 此处缺少操作符 ");
+                Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少操作符 ");
         }
     }
 
@@ -159,7 +154,6 @@ SyntaxParser = function(){
         }
         else{
             this.strConstant();
-            this.next = this.tokenParser.next();
         }
     }
 
@@ -167,7 +161,6 @@ SyntaxParser = function(){
         // 识别文法中的evaluateOrMove
         this.operateTwo();
         this.evaluateOrMoves();
-        this.next = this.tokenParser.next();
     }
 
     this.evaluateOrMoves = function(){
@@ -177,16 +170,15 @@ SyntaxParser = function(){
             if(this.next.type === "IT"){
                 this.stack.push(this.next.value);
                 this.evaluateOrMove();
-                this.next = this.tokenParser.next();
             }
-            else Bugs.log(this.next.line,this.next.row,"SyntaxError: 此处缺少标识符 ");
+            else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少标识符 ");
         }
     }
 };
 
-//TokenParser = function(){
-    /*
-     * test类
+/*TokenParser = function(){
+    
+      test类
 
     Token = function(value,type){
         this.value = value;
