@@ -146,12 +146,10 @@ Runtime.js 文件用于写运行环境
     <grammr> -> <char><State>; | <tape><State>;| <num><State>; | <IT><evaluateOrMove>; | <if><ifsub>;
     <State> -> <Sub> | <Sub>,<State>
     <Sub> -> <IT><operateOne>
-    <operateOne> -> =<rightValue> | 空
+    <operateOne> -> = <orExp> | 空
     <evaluateOrMove> -> <operateTwo><evaluateOrMoves>
     <evaluateOrMoves> -> ,<IT><evaluateOrMove> | 空
     <operateTwo> -> =<rightValue> | "->" | "<-"
-    <rightValue> -> <orExp><rightSub>
-    <rightSub> -> = <orExp><rightSub> | 空
     <orExp> -> <andExp><orSub>
     <orSub> -> <||> <andExp><orSub> | 空
     <andExp> -> <cmpExp><andSub>
