@@ -36,9 +36,7 @@
                 <div class="close" onclick="hide()">X</div>
             </div>
             <div class="window">
-                <div id="tape">
-                    <!--这一块应该是用js加的-->
-                </div>
+                <div id="tape"></div>
             </div>
         </div>
     </div>
@@ -123,24 +121,25 @@
             alert("You should build first");
     }
     let nameStack = [];
-    let Win = document.getElementById("tape");
     let str = '';
+    let Win = document.getElementById("tape");
+    let TP = undefined; // dom元素
+    let Group = undefined;
+    let Name = undefined;
+    let Pointer = undefined;
     function next() {
-
         try {
             let tape = undefined;
             let tapeName = undefined;
             let ShuZu = []; 
-
-            let TP = undefined; // dom元素
-            let Group = undefined;
-            let Name = undefined;
-            let Pointer = undefined;
+            vm.step();
+            console.log(Win);
             for(let key of SymbolTable.tapes.keys())
             {
-                vm.step();
                 console.log("运行指令：", vm.getNowInstruction());
                 tape = SymbolTable.tapes.get(key);
+                if(tape.value === '')
+                    continue;
                 tapeName = tape.value.name;
                 console.log(tapeName);
                 console.table({tapeData: tape.value.tapeData});
@@ -150,7 +149,7 @@
                     Name = document.createElement('div');
                     TP = document.createElement('xmp');
                     Group.id = tapeName;
-                    Group.style = "display: block";
+                    Group.style.display = "block";
                     Name.className = 'name';
                     TP.className = 'tape';
                     Group.appendChild(Name);
@@ -187,6 +186,7 @@
     function hide() {
         quat = [];
         document.getElementById("frame").style.display="none";
+        location.reload(); 
     }
 </script>
 </body>
