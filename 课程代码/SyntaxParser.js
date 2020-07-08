@@ -7,13 +7,11 @@ SyntaxParser = function(){
     this.grammarList = function(){
         /* 识别<语句表>
          * 1.0版本作为主程序需要先调用next
-         * 识别成功返回 "end"
+         * 识别成功返回 "Over!"
          */
         this.next = this.tokenParser.next();
         this.grammar();
-        var i = 0;
         while(this.next.value !== "Over!") {
-            i ++;
             this.grammar();
             if(i === 10)
                 break;
