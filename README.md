@@ -149,24 +149,24 @@ Runtime.js 文件用于写运行环境
     <operateOne> -> = <orExp> | 空
     <evaluateOrMove> -> <operateTwo><evaluateOrMoves>
     <evaluateOrMoves> -> ,<IT><evaluateOrMove> | 空
-    <operateTwo> -> =<rightValue> | "->" | "<-"
+    <operateTwo> -> =<orExp> | "->" | "<-"
     <orExp> -> <andExp><orSub>
     <orSub> -> <||> <andExp><orSub> | 空
     <andExp> -> <cmpExp><andSub>
     <andSub> -> <&&> <cmpExp><andSub> | 空
     <cmpExp> -> <addsExp><cmpSub>
-    <cmpSub> -> <cmps><andExp><cmpSub> | 空
+    <cmpSub> -> <cmps><addsExp><cmpSub> | 空
     <cmps> -> < | > | <= | >= | != | ==
     <addsExp> -> <mulsExp><addsSub>
     <addsSub> -> <adds><mulsExp><addsSub> | 空
     <adds> -> + | -
     <mulsExp> -> <singleExp><mulsSub>
-    <mulsSub> -> <muls><andExp><mulsSub> | 空
+    <mulsSub> -> <muls><singleExp><mulsSub> | 空
     <muls> -> * | / | %
     <singleExp> -> <single><singleExp>| <var>
     <single> -> ! | -
     <var> -> ( <orExp> ) | <i>
     <i> -> <IT> | <strConstant> | <numConstant>
-    <ifSub> -> ( <rightvalue> ) { <grammarList> } <ifBranch>
+    <ifSub> -> ( <orExp> ) { <grammarList> } <ifBranch>
     <ifBranch> -> <else><elseSub> | 空
     <elseSub> -> <if><ifSub> | { <grammarList> } 
