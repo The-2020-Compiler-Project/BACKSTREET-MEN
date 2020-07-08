@@ -165,7 +165,7 @@ Runtime.js 文件用于写运行环境
     <muls> -> * | / | %
     <singleExp> -> <single><singleExp>| <var>
     <single> -> ! | -
-    <var> -> ( <rightValue> ) | <i>
+    <var> -> ( <orExp> ) | <i>
     <i> -> <IT> | <strConstant> | <numConstant>
     <ifSub> -> ( <rightvalue> ) { <grammarList> } <ifBranch>
     <ifBranch> -> <else><elseSub> | 空
