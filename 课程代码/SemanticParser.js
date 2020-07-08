@@ -135,7 +135,13 @@ function QuatCreate() {
         /* 生成声明语句四元式
         *  声明同时赋值
         */
-        this.quat.push(new Quat('=',this.stack.items[this.stack.items.length - 1],this.semanticParser.flag,this.stack.items[this.stack.items.length - 2]));
+        if(this.semanticParser.flag === "tape") {
+            this.quat.push(new Quat('=','',this.semanticParser.flag,this.stack.items[this.stack.items.length - 2]));
+            this.quat.push(new Quat('=',this.stack.items[this.stack.items.length - 1],'',this.stack.items[this.stack.items.length - 2]));           
+        }
+        else
+            this.quat.push(new Quat('=',this.stack.items[this.stack.items.length - 1],this.semanticParser.flag,this.stack.items[this.stack.items.length - 2]));
+
     }
     this.quatTapeLeft = function () {
         /*

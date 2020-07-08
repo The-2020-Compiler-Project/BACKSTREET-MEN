@@ -38,13 +38,6 @@
             <div class="window">
                 <div id="tape">
                     <!--这一块应该是用js加的-->
-                    <div style="display: block">
-                        <div id="name"><span>  </span></div>
-                        <div id="pointer"></div>
-                    </div>
-                    <div style="display: block">
-                        <div id=tape1 class="tape"></div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -122,28 +115,66 @@
         console.log(Bugs.msgs);
     }
     function show() { //点击运行时执行的函数
-        if(quat.length !== 0){
+        if(quat.length !== 0 && Bugs.msgs.length === 0){
             document.getElementById("frame").style.display="";
             vm.load(quat);
         }
         else
             alert("You should build first");
     }
-
+    let nameStack = [];
+    let Win = document.getElementById("tape");
+    let str = '';
     function next() {
 
         try {
-            let tape;
+            let tape = undefined;
+            let tapeName = undefined;
+            let ShuZu = []; 
+
+            let TP = undefined; // dom元素
+            let Group = undefined;
+            let Name = undefined;
+            let Pointer = undefined;
             for(let key of SymbolTable.tapes.keys())
             {
-                tape = SymbolTable.tapes.get(key);
-                console.log("运行指令：", vm.getNowInstruction());
                 vm.step();
+                console.log("运行指令：", vm.getNowInstruction());
+                tape = SymbolTable.tapes.get(key);
+                tapeName = tape.value.name;
+                console.log(tapeName);
                 console.table({tapeData: tape.value.tapeData});
-                let str = tape.value.tapeData.join(" ");
-                document.getElementById('name').innerHTML = tape.value.name;
-                document.getElementById("tape1").innerHTML = str;
-                document.getElementById("pointer").innerHTML = tape.value.pointer 
+                if(nameStack.indexOf(tapeName) === -1)
+                {
+                    Group = document.createElement('div');
+                    Name = document.createElement('div');
+                    TP = document.createElement('xmp');
+                    Group.id = tapeName;
+                    Group.style = "display: block";
+                    Name.className = 'name';
+                    TP.className = 'tape';
+                    Group.appendChild(Name);
+                    Group.appendChild(TP);
+                    Win.appendChild(Group);
+                    nameStack.push(tapeName);
+                }
+                else 
+                {
+                    Group = document.getElementById(tapeName);
+                    let children = Group.childNodes;
+                    Name = children[0];
+                    TP = children[1];
+                }
+
+                ShuZu = tape.value.tapeData.slice();
+                let Num = tape.value.pointer;
+                ShuZu.splice(Num + 1, 0, "<-");
+                str = ShuZu.join(" ");
+                Name.innerHTML = tape.value.name;
+                TP.innerHTML = ' ' + str;
+                //document.getElementById('name').innerHTML = tape.value.name;
+                //document.getElementById("tape1").innerHTML = str;
+                //document.getElementById("pointer").innerHTML = tape.value.pointer 
                 console.log(` ${tape.value.name}: pointer = ${tape.value.pointer}`);
             }
         } catch (RangeError) {
@@ -154,11 +185,8 @@
     }
 
     function hide() {
-        quat = []; 
+        quat = [];
         document.getElementById("frame").style.display="none";
-        document.getElementById('name').innerHTML = "";
-        document.getElementById("tape1").innerHTML = "";
-        document.getElementById("pointer").innerHTML = ""; 
     }
 </script>
 </body>
