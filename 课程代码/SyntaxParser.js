@@ -3,18 +3,28 @@ SyntaxParser = function(){
      * 通过调用词法分析的next接口得到token
      * 通过递归下降方法分析语法
      * 通过语义分析的接口实现语义动作
-     */  
+     */
+
+    this.start = function(){
+        this.next = this.tokenParser.next();
+        this.grammarList();
+        this.over();
+    }
+
+    this.over = function(){
+        if(this.next.type === "exit"){
+            this.next = this.tokenParser.next();
+            this.numConstant();
+        }
+        else Bugs.log(this.next.row,this.next.line,"SyntaxError: 缺少exit语句 ");
+    }
+
     this.grammarList = function(){
         /* 识别<语句表>
-         * 1.0版本作为主程序需要先调用next
-         * 识别成功返回 "Over!"
          */
-        this.next = this.tokenParser.next();
-        this.grammar();
-        while(this.next.value !== "Over!") {
+        while(this.next.type === "tape" || this.next.type === "char" || this.next.type === "name" || this.next.type === "if" || this.next.type === "IT") {
             this.grammar();
         }
-        console.log("识别完成");
     }
 
     this.init = function(tokenParser, semanticParser, quatCreate, stack){
@@ -34,6 +44,7 @@ SyntaxParser = function(){
         switch(this.next.type){
             case "char":
             case "tape":
+            case "num":
                 this.sp.flag = this.next.type;
                 this.next = this.tokenParser.next();
                 this.state();
@@ -43,9 +54,8 @@ SyntaxParser = function(){
                 this.next = this.tokenParser.next();
                 this.evaluateOrMove();
                 break;
-            case "exit":
-                this.next = this.tokenParser.next();
-                this.numConstant();
+            case "if":
+                this.ifSub();
                 break;
             default:
                 Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处只能是标识符或关键字 ");
@@ -81,15 +91,6 @@ SyntaxParser = function(){
         this.next = this.tokenParser.next();
     }
 
-    this.strConstant = function(){
-        // 识别字符常量
-        if(this.next.type !== "CC"){
-            Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处只能是字符常量 ");
-        }
-        else this.stack.push(this.next.value);
-        this.next = this.tokenParser.next();
-    }
-
     this.sub = function(){
         // 识别文法中的sub
         if(this.next.type === "IT"){
@@ -105,7 +106,7 @@ SyntaxParser = function(){
         // 识别文法中的operateOne
         if(this.next.value === '=') {
             this.next = this.tokenParser.next();
-            this.rightValue();
+            this.orExp();
             this.quatCreate.quatDeclareEvaluate();
             this.stack.pop();
             this.stack.pop();
@@ -121,7 +122,7 @@ SyntaxParser = function(){
         switch(this.next.value){
             case "=":
                 this.next = this.tokenParser.next();
-                this.rightValue();
+                this.orExp();
                 this.quatCreate.quatEvaluate();
                 this.stack.pop();
                 this.stack.pop();
@@ -143,18 +144,6 @@ SyntaxParser = function(){
         }
     }
 
-    this.rightValue = function(){
-        if(this.next.type === "IT"){
-            this.sp.judgeVarDeclared(this.next);
-            this.stack.push(this.next.value);
-            this.sp.judgeTypeSame(this.next,this.stack.items[this.stack.items.length-1],this.stack.items[this.stack.items.length-2]);
-            this.next = this.tokenParser.next();
-        }
-        else{
-            this.strConstant();
-        }
-    }
-
     this.evaluateOrMove = function(){
         // 识别文法中的evaluateOrMove
         this.operateTwo();
@@ -172,11 +161,161 @@ SyntaxParser = function(){
             else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少标识符 ");
         }
     }
+    /* 下面三个子程序用来识别if语句
+     * if语句支持没有else if和没有else的情况
+     * 和C相比不同的两点是 1.大括号后必须要有; 2.不支持没有大括号只有一条语句的情况
+     */
+    this.ifSub = function() {
+        if (this.next.value === "(") {
+            this.next = this.tokenParser.next();
+            this.orExp();
+            if (this.next.value === ")") {
+                this.next = this.tokenParser.next();
+                if(this.next.value === "{"){
+                    this.next = this.tokenParser.next();
+                    this.grammarList();
+                    if(this.next.value === "}"){
+                        this.next = this.tokenParser.next();
+                        this.ifBranch();
+                    }
+                    else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少} ");
+                }
+                else Bugs.log(this.next.row,this.next.line,"SyntaxError: if语句的格式有错误 ");
+            }
+            else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少) ");
+        }
+        else Bugs.log(this.next.row,this.next.line,"SyntaxError: if语句的格式有错误 ");
+    }
+
+    this.ifBranch = function(){
+        if(this.next.value === "else"){
+            this.next = this.tokenParser.next();
+            this.elseSub();
+        }
+    }
+
+    this.elseSub = function(){
+        if(this.next.value === "if"){
+            this.next = this.tokenParser.next();
+            this.ifSub();
+        }
+        else if(this.next.value === "{"){
+            this.next = this.tokenParser.next();
+            this.grammarList();
+            if(this.next.value !== "}") Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少} ");
+        }
+        else Bugs.log(this.next.row,this.next.line,"SyntaxError: if语句的格式有错误 ");
+    }
+
+    /* 这里往下都是识别表达式的子程序
+     * 方法是将高优先级运算符形成的表达式整体作为低优先级运算符形成的表达式的操作数
+     * 单目运算符只支持取非(!)和取负(-)
+     */
+    this.orExp = function(){
+        this.andExp();
+        this.orSub();
+    }
+
+    this.orSub = function(){
+        if(this.next.value === "||"){
+            this.stack.push(this.next);
+            this.next = this.tokenParser.next();
+            this.andExp();
+            this.orSub();
+        }
+    }
+    this.andExp = function(){
+        this.cmpExp();
+        this.andSub();
+    }
+
+    this.andSub = function(){
+        if(this.next.value === "&&"){
+            this.stack.push(this.next);
+            this.next = this.tokenParser.next();
+            this.cmpExp();
+            this.andSub();
+        }
+    }
+
+    this.cmpExp = function(){
+        this.addsExp();
+        this.cmpSub();
+    }
+
+    this.cmpSub = function(){
+        if(this.next.value === "<" || this.next.value === ">" || this.next.value === "<=" ||
+        this.next.value === ">=" || this.next.value === "==" || this.next.value === "!=" ){
+            this.stack.push(this.next);
+            this.next = this.tokenParser.next();
+            this.addsExp();
+            this.cmpSub();
+        }
+    }
+
+    this.addsExp = function(){
+        this.divsExp();
+        this.addsSub();
+    }
+
+    this.addsSub = function(){
+        if(this.next.value === "+" || this.next.value === "-"){
+            this.stack.push(this.next);
+            this.next = this.tokenParser.next();
+            this.divsExp();
+            this.addsSub();
+        }
+    }
+
+    this.divsExp = function(){
+        this.singleExp();
+        this.divsSub();
+    }
+
+    this.divsSub = function(){
+        if(this.next.value === "*" || this.next.value === "/" || this.next.value === "%"){
+            this.stack.push(this.next);
+            this.next = this.tokenParser.next();
+            this.singleExp();
+            this.divsSub();
+        }
+    }
+
+    this.singleExp = function(){
+        if(this.next.value === "!" || this.next.value === "-"){
+            this.stack.push(this.next);
+            this.next = this.tokenParser.next();
+            this.singleExp();
+        }
+        else this.data();
+    }
+
+    this.data = function () {
+        if(this.next.value === "("){
+            this.stack.push(this.next);
+            this.next = this.tokenParser.next();
+            this.orExp();
+            if(this.next.value === ")"){
+                this.stack.push(this.next);
+            }
+            else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少) ");
+        }
+        else this.ends();
+    }
+
+    this.ends = function(){
+        if(this.next.type === "IT" || this.next.type === "CC" || this.next.type === "CT"){
+            this.stack.push(this.next);
+            this.next = this.tokenParser.next();
+        }
+        else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处只能是标识符或常量 ");
+    }
 };
+
 
 /*TokenParser = function(){
     
-      test类
+    //test类
 
     Token = function(value,type){
         this.value = value;
