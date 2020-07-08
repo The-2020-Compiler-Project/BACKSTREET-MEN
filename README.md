@@ -140,12 +140,35 @@ Runtime.js 文件用于写运行环境
 # 0x40 文法定义
 文法：
 
+    <program> -> <grammraList><over>
+    <over> -> <exit><numConstant>;
     <grammarList> -> <grammr><grammarList> | 空
-    <grammr> -> <char><State>; | <tape><State>; | <IT><evaluateOrMove>;| <exit><numConstant>
+    <grammr> -> <char><State>; | <tape><State>;| <num><State>; | <IT><evaluateOrMove>; | <if><ifsub>;
     <State> -> <Sub> | <Sub>,<State>
     <Sub> -> <IT><operateOne>
     <operateOne> -> =<rightValue> | 空
     <evaluateOrMove> -> <operateTwo><evaluateOrMoves>
     <evaluateOrMoves> -> ,<IT><evaluateOrMove> | 空
     <operateTwo> -> =<rightValue> | "->" | "<-"
-    <rightValue> -> <IT> | <strConstant>
+    <rightValue> -> <orExp><rightSub>
+    <rightSub> -> = <orExp><rightSub> | 空
+    <orExp> -> <andExp><orSub>
+    <orSub> -> <||> <andExp><orSub> | 空
+    <andExp> -> <cmpExp><andSub>
+    <andSub> -> <&&> <cmpExp><andSub> | 空
+    <cmpExp> -> <addsExp><cmpSub>
+    <cmpSub> -> <cmps><andExp><cmpSub> | 空
+    <cmps> -> < | > | <= | >= | != | ==
+    <addsExp> -> <mulsExp><addsSub>
+    <addsSub> -> <adds><mulsExp><addsSub> | 空
+    <adds> -> + | -
+    <mulsExp> -> <singleExp><mulsSub>
+    <mulsSub> -> <muls><andExp><mulsSub> | 空
+    <muls> -> * | / | %
+    <singleExp> -> <single><singleExp>| <var>
+    <single> -> ! | -
+    <var> -> ( <rightValue> ) | <i>
+    <i> -> <IT> | <strConstant> | <numConstant>
+    <ifSub> -> ( <rightvalue> ) { <grammarList> } <ifBranch>
+    <ifBranch> -> <else><elseSub> | 空
+    <elseSub> -> <if><ifSub> | { <grammarList> } 
