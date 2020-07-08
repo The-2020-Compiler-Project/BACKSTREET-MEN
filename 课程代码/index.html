@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FOF</title>
+    <script src="js/jquery-3.4.1.js"></script>
+    <script type="text/javascript" src="Runtime.js"></script>
+    <script type="text/javascript" src="TokenParser.js"></script>
+    <script type="text/javascript" src="PreProcessor.js"></script>
+    <script type="text/javascript" src="SemanticParser.js"></script>
+    <script type="text/javascript" src="SyntaxParser.js"></script>
+    <script type="text/javascript" src="Optimal.js"></script>
+
+    <!-- 网页界面 -->
+    <link rel="stylesheet" type="text/css" href="index.css">
+</head>
+<body>
+    <div id="hander">
+        <h1 id="title">F O F</h1>
+        <button class="complie" type="button" onclick="complie()">Build</button>
+        <button class="run" type="button" onclick="show()">Run</button>
+    </div>
+    <div id="mian">
+        <div id="leftBox">
+            <textarea wrap="off" cols="2" id="leftNum" disabled></textarea>
+        </div>
+        <textarea id="test" name="content" onkeydown="keyUp()" onscroll="getId('leftNum').scrollTop = this.scrollTop;">
+        </textarea>
+    </div>
+
+    <!--弹窗-->
+    <div id = "frame">
+        <div class="shadow">
+            <div class="hander">
+                <button id="next" onclick="next()">--></button>
+                <div class="close" onclick="hide()">X</div>
+            </div>
+            <div class="window">
+                <div id="tape"></div>
+            </div>
+        </div>
+    </div>
+
+<script type="text/javascript">
+    //能写tape
+    $("textarea").on(
+    'keydown',
+    function(e) {
+        if (e.keyCode == 9) {
+            e.preventDefault();
+            var indent = '    '; 
+            var start = this.selectionStart;
+            var end = this.selectionEnd;
+            var selected = window.getSelection().toString();
+            selected = indent + selected.replace(/\n/g, '\n' + indent);
+            this.value = this.value.substring(0, start) + selected
+                    + this.value.substring(end);
+            this.setSelectionRange(start + indent.length, start
+                    + selected.length);
+        }
+    });
+    //行号设置
+    var num = "";
+    var btn = getId('btn');
+    var text = getId('test');
+    function getId(obj) {
+        return document.getElementById(obj);
+    }
+    function keyUp(){
+        var str = text.value;
+        str = str.replace(/\r/gi,"");
+        str = str.split("\n");
+        n = str.length;
+        line(n);
+    }
+    function line(n){
+        var lineobj = getId("leftNum");
+        for(var i = 1;i <= n;i ++){
+           if(document.all){
+            num += i + "\r\n";//判断浏览器是否是IE
+           }else{
+            num += i + "\n";
+           }
+        }
+        lineobj.value = num;
+        num = "";
+    }
+
+    (function() {
+        keyUp();
+    })();
+    var quat = [];
+    var p = new TokenParser();      
+    var syntaxParser = new SyntaxParser();
+    var semanticParser = new SemanticParser();
+    var quatCreate = new QuatCreate();
+    var stack = new Stack();
+    var vm = VirtualMachine;
+    document.getElementById("frame").style.display="none";
+    function complie() {   //<= 在这里开始接
+        Bugs.init();
+        p.init(PreProcessor());
+        SymbolTable.init();
+        syntaxParser.init(p, semanticParser, quatCreate, stack);
+        syntaxParser.grammarList();
+        quat = syntaxParser.quatCreate.quat;
+        console.log("四元式：");
+        for(let i = 0; i < quat.length; i++)
+        {
+            console.log(quat[i]);
+        }
+        console.log("bugs:");
+        console.log(Bugs.msgs);
+    }
+    function show() { //点击运行时执行的函数
+        if(quat.length !== 0 && Bugs.msgs.length === 0){
+            document.getElementById("frame").style.display="";
+            vm.load(quat);
+        }
+        else
+            alert("You should build first");
+    }
+    let nameStack = [];
+    let str = '';
+    let Win = document.getElementById("tape");
+    let TP = undefined; // dom元素
+    let Group = undefined;
+    let Name = undefined;
+    let Pointer = undefined;
+    function next() {
+        try {
+            let tape = undefined;
+            let tapeName = undefined;
+            let ShuZu = []; 
+            vm.step();
+            console.log(Win);
+            for(let key of SymbolTable.tapes.keys())
+            {
+                console.log("运行指令：", vm.getNowInstruction());
+                tape = SymbolTable.tapes.get(key);
+                if(tape.value === '')
+                    continue;
+                tapeName = tape.value.name;
+                console.log(tapeName);
+                console.table({tapeData: tape.value.tapeData});
+                if(nameStack.indexOf(tapeName) === -1)
+                {
+                    Group = document.createElement('div');
+                    Name = document.createElement('div');
+                    TP = document.createElement('xmp');
+                    Group.id = tapeName;
+                    Group.style.display = "block";
+                    Name.className = 'name';
+                    TP.className = 'tape';
+                    Group.appendChild(Name);
+                    Group.appendChild(TP);
+                    Win.appendChild(Group);
+                    nameStack.push(tapeName);
+                }
+                else 
+                {
+                    Group = document.getElementById(tapeName);
+                    let children = Group.childNodes;
+                    Name = children[0];
+                    TP = children[1];
+                }
+
+                ShuZu = tape.value.tapeData.slice();
+                let Num = tape.value.pointer;
+                ShuZu.splice(Num + 1, 0, "<-");
+                str = ShuZu.join(" ");
+                Name.innerHTML = tape.value.name;
+                TP.innerHTML = ' ' + str;
+                //document.getElementById('name').innerHTML = tape.value.name;
+                //document.getElementById("tape1").innerHTML = str;
+                //document.getElementById("pointer").innerHTML = tape.value.pointer 
+                console.log(` ${tape.value.name}: pointer = ${tape.value.pointer}`);
+            }
+        } catch (RangeError) {
+            console.log(`运行结束，退出状态为 ${vm.endState} (${vm.endState===-1 ? "正常退出" : "异常退出"})`);
+            return
+        }
+    
+    }
+
+    function hide() {
+        quat = [];
+        document.getElementById("frame").style.display="none";
+        location.reload(); 
+    }
+</script>
+</body>
+</html>
