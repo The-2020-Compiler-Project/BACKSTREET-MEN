@@ -134,35 +134,20 @@ html,body {
 	background: red;
 }
 
+#tape {
+	float: left;
+	padding: 0px;
+}
+
 .tape {
 	display: inline-block;
-	position: relative;
 	background: lightblue;
-	width: auto;
-	height: 50px;
-	line-height: 50px;
-	color: black;
-	front-size: 50px;	
-	fron-weight:bold;
-	letter-spacing: 10px;
-	text-align: left;
-	float: left;
 	margin-left: 20px;
-	margin-top: 20px; 
-	text-align: center;
-	padding-left: : 10px;
+	margin-bottom: 20px;
+	text-align: left;
 }
 
-#name {
-	position: relative;
-	float: left;
-	left: 10px;
-	top: 0px;
-}
-
-#pointer {
-	position: relative;
-	float: left;
-	top: 0px;
-	left: 10px;
+.name {
+	margin-left: 20px;
+	text-align: left;
 }
