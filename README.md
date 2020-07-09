@@ -194,6 +194,6 @@ Runtime.js 文件用于写运行环境
     <single> -> ! | -
     <data> -> ( <orExp> ) | <ends>
     <ends> -> <IT> | <strConstant> | <numConstant>
-    <ifSub> -> ( <orExp> ) { <grammarList> } <ifBranch>
+    <ifSub> -> ( <orExp> ) { <grammarList> };<ifBranch>
     <ifBranch> -> <else><elseSub> | 空
-    <elseSub> -> <if><ifSub> | { <grammarList> } 
+    <elseSub> -> <if><ifSub> | { <grammarList> };
