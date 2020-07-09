@@ -71,12 +71,39 @@ TokenParser.js 文件中
 ## 0x33 语法分析
 
 SyntaxParser.js 文件中
-1.0 版本:
 - 实现语法分析类
     - next用来保存调用词法分析接口返回的对象
     - tokenParser用来调用词法分析的方法
     - 类中各个以文法中非终结符命名的方法对应文法中各个子程序
     - 目前几个bug都仅仅是返回error字符串，没有加入bug对象中
+- 加入了init方法
+    - 在编译中每次只需要调用init方法不需要重新new一个新的对象，节省资源
+- 加入了错误处理
+   - 调用Bugs类将错误信息插入
+   - 语法分析部分可能出现的错误信息有:
+       - SyntaxError: 缺少exit语句
+       - SyntaxError: 此处只能是标识符或关键字
+       - SyntaxError: 此处缺少;
+       - SyntaxError: 此处只能是数字常量
+       - SyntaxError: 此处缺少操作符
+       - SyntaxError: 此处缺少}
+       - SyntaxError: if语句的格式有错误
+       - SyntaxError: 此处缺少) 
+- 实现算数表达式的识别
+   - 方法是将高优先级运算符形成的表达式整体作为低优先级运算符形成的表达式的操作数
+   - 支持表达式的嵌套
+   - 支持的运算以及优先级（从上到下按优先级顺序）
+       - this.data()  识别 ()
+       - this.singleExp()  识别取非!和取负-
+       - this.divsExp() 识别 * / %
+       - this.addsExp() 识别 + - 
+       - this.cmpExp() 识别 > >= < <= == !=
+       - this.andExp() 识别 &&        - this.orExp() 识别 ||
+- if语句的识别
+   - if语句和c语言相比有两点不同
+       - 不支持判断条件后只有一条语句或没有语句时不写{}的格式
+       - {}后要有;
+       - 支持没有else和else if分支
 ## 0x34 语义分析
 
 SemanticParser.js 文件中
@@ -160,13 +187,13 @@ Runtime.js 文件用于写运行环境
     <addsExp> -> <mulsExp><addsSub>
     <addsSub> -> <adds><mulsExp><addsSub> | 空
     <adds> -> + | -
-    <mulsExp> -> <singleExp><mulsSub>
-    <mulsSub> -> <muls><singleExp><mulsSub> | 空
-    <muls> -> * | / | %
-    <singleExp> -> <single><singleExp>| <var>
+    <divsExp> -> <singleExp><divsSub>
+    <divsSub> -> <divs><singleExp><divsSub> | 空
+    <divs> -> * | / | %
+    <singleExp> -> <single><singleExp>| <data>
     <single> -> ! | -
-    <var> -> ( <orExp> ) | <i>
-    <i> -> <IT> | <strConstant> | <numConstant>
+    <data> -> ( <orExp> ) | <ends>
+    <ends> -> <IT> | <strConstant> | <numConstant>
     <ifSub> -> ( <orExp> ) { <grammarList> } <ifBranch>
     <ifBranch> -> <else><elseSub> | 空
     <elseSub> -> <if><ifSub> | { <grammarList> } 
