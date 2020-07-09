@@ -2,7 +2,6 @@
 function PreProcessor() {
 	let code = []; 
 	let textArea = $('#test').val();
-
  	code = textArea.split("");
 	let item1 = 1;
  	let item2 = 1;

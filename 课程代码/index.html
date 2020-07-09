@@ -95,6 +95,9 @@
     var semanticParser = new SemanticParser();
     var quatCreate = new QuatCreate();
     var stack = new Stack();
+    var varStack = [];
+    var operaStack = [];
+    var tempNumber = 0;
     //var ifStack = new Stack();
     //var otherStack = new Stack();
     //var itemStack = new Stack();
@@ -102,7 +105,8 @@
     document.getElementById("frame").style.display="none";
     function complie() {   //<= 在这里开始接
         Bugs.init();
-        p.init(PreProcessor());
+        let str = PreProcessor();
+        p.init(str);
         SymbolTable.init();
         syntaxParser.init(p, semanticParser, quatCreate, stack);
         syntaxParser.start();
@@ -183,13 +187,13 @@
             console.log(`运行结束，退出状态为 ${vm.endState} (${vm.endState===-1 ? "正常退出" : "异常退出"})`);
             return
         }
-    
+
     }
 
     function hide() {
         quat = [];
         document.getElementById("frame").style.display="none";
-        location.reload(); 
+       // location.reload();
     }
 </script>
 </body>

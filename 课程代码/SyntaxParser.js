@@ -22,8 +22,7 @@ SyntaxParser = function(){
     this.grammarList = function(){
         /* 识别<语句表>
          */
-        while(this.next.type === "tape" || this.next.type === "char" || this.next.type === "name" || this.next.type === "if" || this.next.type === "IT") {
-            console.log(this.next);
+        while(this.next.type === "tape" || this.next.type === "char" || this.next.type === "num" || this.next.type === "if" || this.next.type === "IT") {
             this.grammar();
         }
     }
@@ -42,7 +41,7 @@ SyntaxParser = function(){
         /* 识别语句
          * 分别为声明语句,赋值语句,exit语句
          */
-        let flag = 0;
+          //  let flag = 0;
         switch(this.next.type){
             case "char":
             case "tape":
@@ -50,13 +49,13 @@ SyntaxParser = function(){
                 this.sp.flag = this.next.type;
                 this.next = this.tokenParser.next();
                 this.state();
-                flag = 1;
+          //    flag = 1;
                 break;
             case "IT":
                 this.stack.push(this.next.value);
                 this.next = this.tokenParser.next();
-                this.evaluateOrMove();
-                flag = 1;
+                this.evaluateOrMove()
+          //    flag = 1;
                 break;
           //case "if":
           //    this.ifSub();
@@ -64,12 +63,12 @@ SyntaxParser = function(){
             default:
                 Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处只能是标识符或关键字 ");
         }
-        if(flag){
+        //if(flag){
             if(this.next.value === ';'){
                 this.next = this.tokenParser.next();
             }
             else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少; ");
-        }
+        //}
     }
 
     this.state = function(){
@@ -312,13 +311,17 @@ SyntaxParser = function(){
     this.addsExp = function(){
         this.divsExp();
         this.addsSub();
+        if(varStack.length === 1 && operaStack.length === 0)
+            this.stack.push(varStack.pop());
     }
 
     this.addsSub = function(){
         if(this.next.value === "+" || this.next.value === "-"){
+            operaStack.push(this.next.value);
             // this.stack.push(this.next);
             this.next = this.tokenParser.next();
             this.divsExp();
+            this.quatCreate.quatOperation();
             this.addsSub();
         }
     }
@@ -331,8 +334,10 @@ SyntaxParser = function(){
     this.divsSub = function(){
         if(this.next.value === "*" || this.next.value === "/" || this.next.value === "%"){
             // this.stack.push(this.next);
+            operaStack.push(this.next.value);
             this.next = this.tokenParser.next();
             this.singleExp();
+            this.quatCreate.quatOperation();
             this.divsSub();
         }
     }
@@ -353,7 +358,7 @@ SyntaxParser = function(){
             this.orExp();
             //Result();
             if(this.next.value === ")"){
-                this.stack.push(this.next);
+                //this.stack.push(this.next);
             }
             else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少) ");
         }
@@ -363,6 +368,7 @@ SyntaxParser = function(){
     this.ends = function(){
         if(this.next.type === "IT" || this.next.type === "CC" || this.next.type === "CT"){
             // this.stack.push(this.next);
+            varStack.push(this.next.value);
             this.next = this.tokenParser.next();
         }
         else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处只能是标识符或常量 ");

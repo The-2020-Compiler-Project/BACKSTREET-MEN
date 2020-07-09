@@ -1,4 +1,3 @@
-
 Bugs = new (function() {
     /**
      * 错误信息收集对象，通过调用 log 方法将信息收集在 msgs 属性中
@@ -53,14 +52,17 @@ SymbolTable = new (function () {
         this.value = value;
     }
 
+
     this.tables = [new Map()]; /init 时用到/
-    this.tapes = undefined; 
+    this.tapes = undefined;
+    this.tempTable = undefined;
 
     this.init = function (isRuntime = false) {
         /**
          * isRuntime 用于区分是否在 Runtime 环境使用符号表，如果是则不清空 this.tape
          */
         this.tables = [new Map()];
+        this.tempTable = new Map();
         isRuntime || (this.tapes = new Map());
     }
 
@@ -70,6 +72,12 @@ SymbolTable = new (function () {
 
     this.popTable = function () {
         this.tables.pop();
+    }
+    this.getTempVar = function (name) {
+        return this.tempTable.get(name);
+    }
+    this.setTempVar = function (name, value) {
+        this.tempTable.set(name, value);
     }
 
     this.insertSymbol = function (name, type, value) {
@@ -90,23 +98,23 @@ SymbolTable = new (function () {
         //  tape 变量的 value 如果是 '' 表示在 Compile 环境
         //  ...
         switch (type) {
-        case "tape":
-            if (value) {
-                // Runtime 环境
-                this.tapes.get(name).value = value;
-            } else {
-                // Compile 环境，纸带变量可以重复定义，返回 true
-                if (this.tapes.has(name)) return true;
-                this.tapes.set(name, new SymbolInfo(type, value));
-            }
-            break;
+            case "tape":
+                if (value) {
+                    // Runtime 环境
+                    this.tapes.get(name).value = value;
+                } else {
+                    // Compile 环境，纸带变量可以重复定义，返回 true
+                    if (this.tapes.has(name)) return true;
+                    this.tapes.set(name, new SymbolInfo(type, value));
+                }
+                break;
 
-        default:
-            let tmpTable =  this.tables[this.tables.length-1];
-            // num 和 char 变量不可以重复定义，返回 false
-            if (tmpTable.has(name)) return false;
-            tmpTable.set(name, new SymbolInfo(type, value));
-            break;
+            default:
+                let tmpTable =  this.tables[this.tables.length-1];
+                // num 和 char 变量不可以重复定义，返回 false
+                if (tmpTable.has(name)) return false;
+                tmpTable.set(name, new SymbolInfo(type, value));
+                break;
         }
 
         return true;
@@ -133,6 +141,24 @@ SymbolTable = new (function () {
         return this.tapes.get(symbol);
     }
 
+    this.getNum = function (item) {
+        let temp = Number(item);
+        if(!isNaN(temp))
+            return temp;
+        else if(item[0] === '\'')
+            return item[1].charCodeAt();
+        else if(item[0] >= '0' && item[0] <= '9')
+            return SymbolTable.getTempVar(item);
+        else
+        {
+            temp = SymbolTable.getVarSymbolInfo(item);
+            if(temp){
+                return this.getNum(temp.value);
+            }
+            return SymbolTable.getTapeSymbolInfo(item).value.getData().charCodeAt();
+        }
+    }
+
 })();
 
 
@@ -146,6 +172,9 @@ function TapeState(name) {
 
     this.setData = function (data) {
         this.tapeData[this.pointer] = data;
+    }
+    this.getData = function () {
+        return this.tapeData[this.pointer];
     }
 
     this.leftMove = function () {
@@ -162,6 +191,7 @@ function TapeState(name) {
         }
         this.pointer++;
     }
+
 }
 
 
@@ -212,8 +242,9 @@ VirtualMachine = new (function() {
          */
         let tmpQuat = this.instructions[this.programCounter];
         return `${this.programCounter} -> `
-                +`(${tmpQuat.operation}, ${tmpQuat.param1}, ${tmpQuat.param2}, ${tmpQuat.result})`;
+            +`(${tmpQuat.operation}, ${tmpQuat.param1}, ${tmpQuat.param2}, ${tmpQuat.result})`;
     }
+
 })();
 
 VirtualMachine.exec = new Map([
@@ -238,24 +269,18 @@ VirtualMachine.exec = new Map([
         } else {
             // 赋值语句
             let searchResult = SymbolTable.getTapeSymbolInfo(result)
-                            || SymbolTable.getVarSymbolInfo(result);
+                || SymbolTable.getVarSymbolInfo(result);
 
-            let tmpValue = 0;
-            if (param1.startsWith('\'') || param1.startsWith('\"')) {
-                tmpValue = param1.slice(1, -1);
-            } else if (typeof(param1) === "number") {
-                tmpValue = param1;
-            } else {
-                tmpValue = SymbolTable.getVarSymbolInfo(param1).value;
-                typeof(tmpValue) === "number" || (tmpValue = tmpValue.slice(1, -1));
-            }
+            let tmpValue = SymbolTable.getNum(param1);
 
             switch (searchResult.type) {
                 case "tape":
-                    searchResult.value.setData(tmpValue);
+                    searchResult.value.setData(String.fromCharCode(tmpValue % 128));
                     break;
-
-                default:
+                case "char":
+                    searchResult.value = tmpValue % 128;
+                    break;
+                case "num":
                     searchResult.value = tmpValue;
                     break;
             }
@@ -275,31 +300,65 @@ VirtualMachine.exec = new Map([
     ['jmp', function (param1, param2, result) {
         // 注意：这里的 programCounter 不能用 this 来访问
         VirtualMachine.programCounter = result;
-    }]
-     ,['elsif', function (param1, param2, result) {
-        // 注意：这里的 programCounter 不能用 this 来访问
-        if(param1 === false)
-            VirtualMachine.programCounter = result;
     }],
-
-        ['else', function (param1, param2, result) {
-        // 注意：这里的 programCounter 不能用 this 来访问
-        VirtualMachine.programCounter = result;
+    ['+', function (param1, param2, result) {
+        param1 = SymbolTable.getNum(param1);
+        param2 = SymbolTable.getNum(param2);
+        if(result[0] >= '0' && result[0] <= '9')
+            SymbolTable.setTempVar(result, (param1 + param2));
     }],
-    ['if', function (param1, param2, result) {
-        // 注意：这里的 programCounter 不能用 this 来访问
-        if(param1 === false)
-        VirtualMachine.programCounter = result;
+    ['-', function (param1, param2, result) {
+        param1 = SymbolTable.getNum(param1);
+        param2 = SymbolTable.getNum(param2);
+        if(result[0] >= '0' && result[0] <= '9')
+            SymbolTable.setTempVar(result, (param1 - param2));
     }],
-    ['goto', function (param1, param2, result) {
-        // 注意：这里的 programCounter 不能用 this 来访问
-        VirtualMachine.programCounter = result;
+    ['*', function (param1, param2, result) {
+        param1 = SymbolTable.getNum(param1);
+        param2 = SymbolTable.getNum(param2);
+        if(result[0] >= '0' && result[0] <= '9')
+            SymbolTable.setTempVar(result, (param1 * param2));
     }],
-    ['ie', function (param1, param2, result) {
-        // 注意：这里的 programCounter 不能用 this 来访问
+    ['/', function (param1, param2, result) {
+        param1 = SymbolTable.getNum(param1);
+        param2 = SymbolTable.getNum(param2);
+        if(result[0] >= '0' && result[0] <= '9')
+            SymbolTable.setTempVar(result, (param1 / param2));
+    }],
+    ['%', function (param1, param2, result) {
+        param1 = SymbolTable.getNum(param1);
+        param2 = SymbolTable.getNum(param2);
+        if(result[0] >= '0' && result[0] <= '9')
+            SymbolTable.setTempVar(result, (param1 % param2));
     }]
     //TODO: 后面如果要支持新的指令，就在最后继续添加类似的数组就好，别忘了当前最后一个数组后面的逗号
+
 ]);
 
+/*let vm = VirtualMachine;
+function Quat(operation, param1, param2, result) {
+    this.operation = operation;
+    this.param1 = param1;
+    this.param2 = param2;
+    this.result = result;
+}
+vm.load([
+    new Quat('+', '1', '2', '1t'),
+    new Quat('*', '1', '1t', '2t'),
+    new Quat('%','1t', '2',  '3t')
+    /*new Quat(),
+    new Quat(),
+    new Quat()*/
+/*]);
 
+while(true)
+{
+    try {
+        vm.step();
+    }
+    catch(Error) {
+        break;
+    }
+}
 
+console.log(SymbolTable.tempTable);*/

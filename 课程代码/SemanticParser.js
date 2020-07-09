@@ -130,7 +130,13 @@ function QuatCreate() {
         /* 生成赋值语句四元式
         *
         */
-        this.quat.push(new Quat('=',this.stack.items[this.stack.items.length - 1] , '' ,this.stack.items[this.stack.items.length - 2]));
+        if(SymbolTable.getVarSymbolInfo(this.stack.items[this.stack.items.length - 2]) !== undefined){
+            this.quat.push(new Quat('=', this.stack.items[this.stack.items.length - 1], '', this.stack.items[this.stack.items.length - 2]));
+            SymbolTable.getVarSymbolInfo(this.stack.items[this.stack.items.length - 2]).value = this.stack.items[this.stack.items.length - 1];
+        }
+        else{
+            this.quat.push(new Quat('=', this.stack.items[this.stack.items.length - 1], '', this.stack.items[this.stack.items.length - 2]));
+        }
     }
     this.quatDeclareEvaluate = function(){
         /* 生成声明语句四元式
@@ -207,6 +213,16 @@ function QuatCreate() {
 
         this.quat.push(new Quat('goto','','',''));
 
+    }
+    this.quatOperation = function () {
+        /*
+        *  生成算数加法的四元式  中间变量    全局变量tempNumber初始化值为0
+         */
+        let param2 =  varStack.pop();
+        let param1 =  varStack.pop();
+        this.quat.push(new Quat(operaStack.pop(), param1, param2, tempNumber.toString() + 't'));
+        varStack.push(tempNumber.toString() + 't');
+        tempNumber++;
     }
 }
 

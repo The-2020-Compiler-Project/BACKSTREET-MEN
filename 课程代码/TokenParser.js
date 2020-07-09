@@ -62,13 +62,11 @@ function TokenParser() {
         this.row = 1;                    //记录当前行数，用于错误收集
         this.line = 0;                   //记录当前列数
         this.load(str);
-
-
     }
 
     this.KW = ["char","tape","num","exit","if",];       //关键字数组
     this.str = new Array();
-    this.DT = ['->','<-','=',';','-','<','(',')','>','!','{','}','*','/','+=','-=','*=','/='];     //界符数组
+    this.DT = ['->','<-','=',';','-','<','(',')','>','!','{','}','+','%','*','/','+=','-=','*=','/='];     //界符数组
 
 
     this.load =function(str) {   //用于接收预处理后的数组的方法
@@ -145,7 +143,7 @@ function TokenParser() {
 
 
     this.judgeKW = function() {  //进行关键字的判断
-        while (this.str[this.location] === ' ' || this.str[this.location] === '\t') {
+        while (this.str[this.location] === ' ' || this.str[this.location] === '\t' || this.str[this.location] === '') {
 
             this.location++;
             if(this.location === this.str.length){  //如果空格或者\t符在最后
@@ -195,17 +193,16 @@ function TokenParser() {
         this.judgeNumCT = function () {            //判断数字类型常量的函数
 
             if((this.str[this.location]>='0' && this.str[this.location]<='9')||this.str[this.location]==='.'){
-
+                //console.log(this.str[this.location]);
                 let arr = [];
                 let k = 0;//arr数组的下标
-                while (((this.str[this.location]>='0' && this.str[this.location]<='9')||this.str[this.location]==='.'||this.str[this.location]==='-'||this.str[this.location]==='+'|| this.str[this.location]==='E'||this.str[this.location]==='e')&&(this.str[this.location] !== ' ' && this.location !== this.str.length)){
-
-                      arr[k] = this.str[this.location];
-                      this.location++;
-                      k++;
+               // while (((this.str[this.location]>='0' && this.str[this.location]<='9')||this.str[this.location]==='.'||this.str[this.location]==='-'||this.str[this.location]==='+'|| this.str[this.location]==='E'||this.str[this.location]==='e')&&(this.str[this.location] !== ' ' && this.location !== this.str.length)){
+                while (((this.str[this.location]>='0' && this.str[this.location]<='9') || this.str[this.location]==='.') && this.str[this.location] !== ' ' && this.location !== this.str.length){
+                    arr[k] = this.str[this.location];
+                    this.location++;
+                    k++;
                 }
                 this.value = arr.join('');     //将arr的内容以字符串的形式保存到value中
-
                 this.num = this.initNumAutoMachine();
 
                 if(this.num.judge(this.value)===true){
@@ -364,7 +361,6 @@ function TokenParser() {
                 this.location++;                        //将当前扫描的地方加一
 
             }
-
             for(let dt of this.DT){                     //遍历数组
 
                 if(this.value === dt){                  //判断是否在DT数组中
@@ -444,8 +440,9 @@ function TokenParser() {
         }
 
 }
-/* let p = new TokenParser();      //建立一个空对象
-p.init();
+/*let p = new TokenParser();      //建立一个空对象
+Bugs.init();
+p.init("(2+3)*4".split(""));
 while (p.location <= p.str.length){
     p.next();
 }*/
