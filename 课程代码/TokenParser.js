@@ -62,26 +62,14 @@ function TokenParser() {
         this.row = 1;                    //记录当前行数，用于错误收集
         this.line = 0;                   //记录当前列数
         this.load(str);
-        //this.test();
+
 
     }
 
-    this.KW = ["char","tape","num","exit","if","while"];       //关键字数组
+    this.KW = ["char","tape","num","exit","if",];       //关键字数组
     this.str = new Array();
-    this.DT = ['->','<-','=',';','-','<','(',')','<','!'];     //界符数组
-    /*this.test = function () {
-        let test = "if(a<5);".split('');              //用于测试的字符串变量
+    this.DT = ['->','<-','=',';','-','<','(',')','>','!','{','}','*','/','+=','-=','*=','/='];     //界符数组
 
-        this.load(test);
-        while (this.location!==this.str.length){
-            this.next();
-        }
-        if(this.returnNum!==-1){
-            console.log("Over!");
-            return "Over!";
-        }
-
-    }*/
 
     this.load =function(str) {   //用于接收预处理后的数组的方法
         this.str = str;
@@ -96,7 +84,7 @@ function TokenParser() {
             this.error = "SytnaxError:It has been unmeaning";   //用于声明字符常量少引号的错误
             this.judgeKW();
             if(this.returnNum === 1){               //如果等于1说明是关键字
-                //console.log(new Token(this.value,this.type,this.row,this.line));
+
                 return new Token(this.value,this.type,this.row,this.line);
             }
             else if(this.returnNum === - 2){
@@ -105,21 +93,21 @@ function TokenParser() {
 
             this.judgeIT();
             if(this.returnNum === 2){               //如果等于2说明是标识符
-                //console.log(new Token(this.value,this.type,this.row,this.line));
+
                 return new Token(this.value,this.type,this.row,this.line);
             }
 
             this.judgeNumCT();
 
             if(this.returnNum === 3){               //如果等于3说明是数字常量
-                //console.log(new Token(this.value,this.type,this.row,this.line));
+
                 return new Token(this.value,this.type,this.row,this.line);
             }
 
             this.judgeCharCT();
 
             if(this.returnNum === 4){               //如果等于4说明是字符常量
-                //console.log(new Token(this.value,this.type,this.row,this.line));
+
                 return new Token(this.value,this.type,this.row,this.line);
             }
             else if(this.returnNum === -1){         //如果等于-1说明少了个单引号，则抛出异常
@@ -131,7 +119,7 @@ function TokenParser() {
             this.judgeStringCT();
 
             if(this.returnNum === 5){               //如果等于5说明事字符串常量
-                //console.log(new Token(this.value,this.type,this.row,this.line));
+
                 return new Token(this.value,this.type,this.row,this.line);
             }
             else if(this.returnNum === -1){         //如果等于-1说明少了一个双引号，则抛出异常
@@ -141,7 +129,7 @@ function TokenParser() {
             }
             this.judgeDT();
             if(this.returnNum === 6){               //如果等于6则说明是界符
-                //console.log(new Token(this.value,this.type,this.row,this.line));
+
                 return new Token(this.value,this.type,this.row,this.line);
 
             }
@@ -149,7 +137,7 @@ function TokenParser() {
         if(this.returnNum!==-1){
             this.location++;
             this.value = "Over!";
-            //console.log("Over!");
+
             return new Token(this.value,this.type,this.row,this.line);;
         }
 
@@ -456,8 +444,8 @@ function TokenParser() {
         }
 
 }
-/*let p = new TokenParser();      //建立一个空对象
+let p = new TokenParser();      //建立一个空对象
 p.init();
 while (p.location <= p.str.length){
     p.next();
-}*/
+}
