@@ -276,7 +276,26 @@ VirtualMachine.exec = new Map([
         // 注意：这里的 programCounter 不能用 this 来访问
         VirtualMachine.programCounter = result;
     }]
+     ,['elsif', function (param1, param2, result) {
+        // 注意：这里的 programCounter 不能用 this 来访问
+        if(param1 === false)
+            VirtualMachine.programCounter = result;
+    }],
 
+        ['else', function (param1, param2, result) {
+        // 注意：这里的 programCounter 不能用 this 来访问
+        VirtualMachine.programCounter = result;
+    }],
+    ['if', function (param1, param2, result) {
+        // 注意：这里的 programCounter 不能用 this 来访问
+        if(param1 === false)
+        VirtualMachine.programCounter = result;
+    }],
+    ['goto', function (param1, param2, result) {
+        // 注意：这里的 programCounter 不能用 this 来访问
+
+            VirtualMachine.programCounter = result;
+    }]
     //TODO: 后面如果要支持新的指令，就在最后继续添加类似的数组就好，别忘了当前最后一个数组后面的逗号
 ]);
 
