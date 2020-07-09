@@ -183,8 +183,8 @@ Runtime.js 文件用于写运行环境
     <cmpExp> -> <addsExp><cmpSub>
     <cmpSub> -> <cmps><addsExp><cmpSub> | 空
     <cmps> -> < | > | <= | >= | != | ==
-    <addsExp> -> <mulsExp><addsSub>
-    <addsSub> -> <adds><mulsExp><addsSub> | 空
+    <addsExp> -> <divsExp><addsSub>
+    <addsSub> -> <adds><divsExp><addsSub> | 空
     <adds> -> + | -
     <divsExp> -> <singleExp><divsSub>
     <divsSub> -> <divs><singleExp><divsSub> | 空
