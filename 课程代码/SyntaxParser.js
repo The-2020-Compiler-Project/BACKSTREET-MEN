@@ -41,6 +41,7 @@ SyntaxParser = function(){
         /* 识别语句
          * 分别为声明语句,赋值语句,exit语句
          */
+        let flag = 0;
         switch(this.next.type){
             case "char":
             case "tape":
@@ -48,11 +49,13 @@ SyntaxParser = function(){
                 this.sp.flag = this.next.type;
                 this.next = this.tokenParser.next();
                 this.state();
+                flag = 1;
                 break;
             case "IT":
                 this.stack.push(this.next.value);
                 this.next = this.tokenParser.next();
                 this.evaluateOrMove();
+                flag = 1;
                 break;
             case "if":
                 this.ifSub();
@@ -60,10 +63,12 @@ SyntaxParser = function(){
             default:
                 Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处只能是标识符或关键字 ");
         }
-        if(this.next.value === ';'){
-            this.next = this.tokenParser.next();
+        if(flag){
+            if(this.next.value === ';'){
+                this.next = this.tokenParser.next();
+            }
+            else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少; ");
         }
-        else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少; ");
     }
 
     this.state = function(){
