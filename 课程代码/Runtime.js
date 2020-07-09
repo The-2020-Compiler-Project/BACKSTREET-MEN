@@ -293,8 +293,10 @@ VirtualMachine.exec = new Map([
     }],
     ['goto', function (param1, param2, result) {
         // 注意：这里的 programCounter 不能用 this 来访问
-
-            VirtualMachine.programCounter = result;
+        VirtualMachine.programCounter = result;
+    }],
+    ['ie', function (param1, param2, result) {
+        // 注意：这里的 programCounter 不能用 this 来访问
     }]
     //TODO: 后面如果要支持新的指令，就在最后继续添加类似的数组就好，别忘了当前最后一个数组后面的逗号
 ]);

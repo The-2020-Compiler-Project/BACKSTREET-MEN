@@ -81,7 +81,7 @@ function TokenParser() {
             this.value = "";
             this.type = "";
             this.returnNum = 0;              //可以根据该值来判断是否需要对该单词继续分析
-            this.error = "SytnaxError:It has been unmeaning";   //用于声明字符常量少引号的错误
+            this.error = "SytnaxError: 字符常量缺少引号";   //用于声明字符常量少引号的错误
             this.judgeKW();
             if(this.returnNum === 1){               //如果等于1说明是关键字
 
@@ -217,7 +217,7 @@ function TokenParser() {
                     this.type="CT";
                     this.line++;
                     this.returnNum = 3;
-                    Bugs.log(this.row,this.line,"该数字常量有错误呦-");             //出现数字错误 要进入Bug类中
+                    Bugs.log(this.row,this.line,"TokenError: 该数字常量有错误呦-");             //出现数字错误 要进入Bug类中
                 }
             }
         }
@@ -281,12 +281,12 @@ function TokenParser() {
             }
 
             if(result === false){
-                Warnings.log(this.row,this.line,"字符常量长度出现了问题");
+                Bugs.log(this.row,this.line,"TokenError: 字符常量长度出现了问题");
             }
 
             if(this.returnNum === -1){
 
-                Bugs.log(this.row,this.line,"您输入的字符常量少了一个引号");
+                Bugs.log(this.row,this.line,"TokenError: 您输入的字符常量少了一个引号");
                 return;
             }
         }
@@ -311,7 +311,7 @@ function TokenParser() {
                 this.returnNum = 5;
             }
             else{                               //已经读到了代码的最后也没有读到双引号，则报错，编译停止
-                Bugs.log(this.row,this.line,"您输入的字符串常量少了一个分号");
+                Bugs.log(this.row,this.line,"TokenError: 您输入的字符串常量少了一个分号");
                 return ;
             }
         }
@@ -376,7 +376,7 @@ function TokenParser() {
             }
 
             if(this.returnNum!==6){
-               Bugs.log(this.row,this.line,"您输入的界符有错误");
+               Bugs.log(this.row,this.line,"TokenError: 您输入的界符有错误");
             }
 
         }
@@ -444,8 +444,8 @@ function TokenParser() {
         }
 
 }
-let p = new TokenParser();      //建立一个空对象
+/* let p = new TokenParser();      //建立一个空对象
 p.init();
 while (p.location <= p.str.length){
     p.next();
-}
+}*/

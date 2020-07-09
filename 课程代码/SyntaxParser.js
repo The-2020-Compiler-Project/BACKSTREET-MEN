@@ -23,6 +23,7 @@ SyntaxParser = function(){
         /* 识别<语句表>
          */
         while(this.next.type === "tape" || this.next.type === "char" || this.next.type === "name" || this.next.type === "if" || this.next.type === "IT") {
+            console.log(this.next);
             this.grammar();
         }
     }
@@ -57,9 +58,9 @@ SyntaxParser = function(){
                 this.evaluateOrMove();
                 flag = 1;
                 break;
-            case "if":
-                this.ifSub();
-                break;
+          //case "if":
+          //    this.ifSub();
+          //    break;
             default:
                 Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处只能是标识符或关键字 ");
         }
@@ -112,6 +113,7 @@ SyntaxParser = function(){
         if(this.next.value === '=') {
             this.next = this.tokenParser.next();
             this.orExp();
+            //Result();
             this.quatCreate.quatDeclareEvaluate();
             this.stack.pop();
             this.stack.pop();
@@ -128,6 +130,7 @@ SyntaxParser = function(){
             case "=":
                 this.next = this.tokenParser.next();
                 this.orExp();
+                //Result();
                 this.quatCreate.quatEvaluate();
                 this.stack.pop();
                 this.stack.pop();
@@ -170,10 +173,11 @@ SyntaxParser = function(){
      * if语句支持没有else if和没有else的情况
      * 和C相比不同的两点是 1.大括号后必须要有; 2.不支持没有大括号只有一条语句的情况
      */
-    this.ifSub = function() {
+/*  this.ifSub = function() {
         if (this.next.value === "(") {
             this.next = this.tokenParser.next();
             this.orExp();
+            Result();
             if (this.next.value === ")") {
                 if(this.sp.num === 0) {
                     this.quatCreate.quatIf();
@@ -258,7 +262,7 @@ SyntaxParser = function(){
         }
         else Bugs.log(this.next.row,this.next.line,"SyntaxError: if语句的格式有错误 ");
     }
-
+*/
     /* 这里往下都是识别表达式的子程序
      * 方法是将高优先级运算符形成的表达式整体作为低优先级运算符形成的表达式的操作数
      * 单目运算符只支持取非(!)和取负(-)
@@ -270,7 +274,7 @@ SyntaxParser = function(){
 
     this.orSub = function(){
         if(this.next.value === "||"){
-            this.stack.push(this.next);
+          // this.stack.push(this.next);
             this.next = this.tokenParser.next();
             this.andExp();
             this.orSub();
@@ -283,7 +287,7 @@ SyntaxParser = function(){
 
     this.andSub = function(){
         if(this.next.value === "&&"){
-            this.stack.push(this.next);
+           // this.stack.push(this.next);
             this.next = this.tokenParser.next();
             this.cmpExp();
             this.andSub();
@@ -298,7 +302,7 @@ SyntaxParser = function(){
     this.cmpSub = function(){
         if(this.next.value === "<" || this.next.value === ">" || this.next.value === "<=" ||
         this.next.value === ">=" || this.next.value === "==" || this.next.value === "!=" ){
-            this.stack.push(this.next);
+            // this.stack.push(this.next);
             this.next = this.tokenParser.next();
             this.addsExp();
             this.cmpSub();
@@ -312,7 +316,7 @@ SyntaxParser = function(){
 
     this.addsSub = function(){
         if(this.next.value === "+" || this.next.value === "-"){
-            this.stack.push(this.next);
+            // this.stack.push(this.next);
             this.next = this.tokenParser.next();
             this.divsExp();
             this.addsSub();
@@ -326,7 +330,7 @@ SyntaxParser = function(){
 
     this.divsSub = function(){
         if(this.next.value === "*" || this.next.value === "/" || this.next.value === "%"){
-            this.stack.push(this.next);
+            // this.stack.push(this.next);
             this.next = this.tokenParser.next();
             this.singleExp();
             this.divsSub();
@@ -335,7 +339,7 @@ SyntaxParser = function(){
 
     this.singleExp = function(){
         if(this.next.value === "!" || this.next.value === "-"){
-            this.stack.push(this.next);
+            // this.stack.push(this.next);
             this.next = this.tokenParser.next();
             this.singleExp();
         }
@@ -344,9 +348,10 @@ SyntaxParser = function(){
 
     this.data = function () {
         if(this.next.value === "("){
-            this.stack.push(this.next);
+            // this.stack.push(this.next);
             this.next = this.tokenParser.next();
             this.orExp();
+            //Result();
             if(this.next.value === ")"){
                 this.stack.push(this.next);
             }
@@ -357,7 +362,7 @@ SyntaxParser = function(){
 
     this.ends = function(){
         if(this.next.type === "IT" || this.next.type === "CC" || this.next.type === "CT"){
-            this.stack.push(this.next);
+            // this.stack.push(this.next);
             this.next = this.tokenParser.next();
         }
         else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处只能是标识符或常量 ");
