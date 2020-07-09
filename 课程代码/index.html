@@ -95,6 +95,9 @@
     var semanticParser = new SemanticParser();
     var quatCreate = new QuatCreate();
     var stack = new Stack();
+    var ifStack = new Stack();
+    var otherStack = new Stack();
+    var itemStack = new Stack();
     var vm = VirtualMachine;
     document.getElementById("frame").style.display="none";
     function complie() {   //<= 在这里开始接

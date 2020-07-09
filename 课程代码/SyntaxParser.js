@@ -175,8 +175,19 @@ SyntaxParser = function(){
             this.next = this.tokenParser.next();
             this.orExp();
             if (this.next.value === ")") {
+                if(this.sp.num === 0) {
+                    this.quatCreate.quatIf();
+                    ifStack.push(quat.length-1);
+                }
+                if(this.sp.num === 1) {
+                    this.quatCreate.quatGoto();
+                    this.quatCreate.quatElsif();
+                    otherStack.push(quat.length-1);
+                    itemStack[ifStack.length-1]++;
+                }
                 this.next = this.tokenParser.next();
                 if(this.next.value === "{"){
+                    this.sp.num = 0;
                     this.next = this.tokenParser.next();
                     this.grammarList();
                     if(this.next.value === "}"){
@@ -197,17 +208,53 @@ SyntaxParser = function(){
             this.next = this.tokenParser.next();
             this.elseSub();
         }
+        else{
+            this.quatCreate.quatIe();
+            let receive = otherStack.pop();
+            quat[receive].result = quat.length-1;
+            quat[receive-1].result = quat.length-1;
+            let elseiflong = itemStack.pop()-1;
+            for(let i=0; i < elseiflong; i++){
+                let reReceive = otherStack.pop();
+                quat[reReceive-1].result = quat.length - 1;  //goto赋值
+                quat[reReceive].result = receive;
+                receive = reReceive;
+            }
+            let arch = ifStack.pop();
+            quat[arch] = receive;
+        }
     }
 
     this.elseSub = function(){
         if(this.next.value === "if"){
+            this.sp.num = 1;
             this.next = this.tokenParser.next();
             this.ifSub();
         }
         else if(this.next.value === "{"){
+            this.quatCreate.quatGoto();
+            this.quatCreate.quatElse();
+            otherStack.push(quat.length-1);
+            itemStack[ifStack.length-1]++;
+            this.sp.num = 0;
             this.next = this.tokenParser.next();
             this.grammarList();
-            if(this.next.value !== "}") Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少} ");
+            if(this.next.value === "}"){
+                this.quatCreate.quatIe();
+                let receive = otherStack.pop();
+                quat[receive].result = quat.length-1;
+                quat[receive-1].result = quat.length-1;
+                let elseIflong = itemStack.pop()-1;
+                for(let i=0; i < elseIflong; i++){
+                    let reReceive = otherStack.pop();
+                    quat[reReceive-1].result = quat.length - 1;  //goto赋值
+                    quat[reReceive].result = receive;
+                    receive = reReceive;
+                }
+                let arch = ifStack.pop();
+                quat[arch] = receive;
+            }
+            else Bugs.log(this.next.row,this.next.line,"SyntaxError: 此处缺少} ");
         }
         else Bugs.log(this.next.row,this.next.line,"SyntaxError: if语句的格式有错误 ");
     }

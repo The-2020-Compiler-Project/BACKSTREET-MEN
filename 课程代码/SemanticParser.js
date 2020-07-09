@@ -40,7 +40,8 @@ function Quat(operation, param1, param2, result) {
 }
 function SemanticParser(){
     this.init = function() {
-        this.flag = undefined;   //在声明语句中存放标志
+        this.flag = undefined;
+        this.num = undefined; //在声明语句中存放标志
     }
     this.judgeState = function(next,flag){
         /*  仅在声明语句时对被声明的变量使用
