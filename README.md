@@ -100,9 +100,8 @@ SyntaxParser.js 文件中
        - this.cmpExp() 识别 > >= < <= == !=
        - this.andExp() 识别 &&        - this.orExp() 识别 ||
 - if语句的识别
-   - if语句和c语言相比有两点不同
+   - if语句
        - 不支持判断条件后只有一条语句或没有语句时不写{}的格式
-       - {}后要有;
        - 支持没有else和else if分支
 ## 0x34 语义分析
 
@@ -170,7 +169,7 @@ Runtime.js 文件用于写运行环境
     <program> -> <grammraList><over>
     <over> -> <exit><numConstant>;
     <grammarList> -> <grammr><grammarList> | 空
-    <grammr> -> <char><State>; | <tape><State>;| <num><State>; | <IT><evaluateOrMove>; | <if><ifsub>;
+    <grammr> -> <char><State>; | <tape><State>;| <num><State>; | <IT><evaluateOrMove>; | <if><ifsub>
     <State> -> <Sub> | <Sub>,<State>
     <Sub> -> <IT><operateOne>
     <operateOne> -> = <orExp> | 空
@@ -194,6 +193,6 @@ Runtime.js 文件用于写运行环境
     <single> -> ! | -
     <data> -> ( <orExp> ) | <ends>
     <ends> -> <IT> | <strConstant> | <numConstant>
-    <ifSub> -> ( <orExp> ) { <grammarList> };<ifBranch>
+    <ifSub> -> ( <orExp> ) { <grammarList> } <ifBranch>
     <ifBranch> -> <else><elseSub> | 空
-    <elseSub> -> <if><ifSub> | { <grammarList> };
+    <elseSub> -> <if><ifSub> | { <grammarList> }
