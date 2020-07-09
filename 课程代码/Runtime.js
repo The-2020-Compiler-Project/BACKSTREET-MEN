@@ -1,3 +1,4 @@
+
 Bugs = new (function() {
     /**
      * 错误信息收集对象，通过调用 log 方法将信息收集在 msgs 属性中

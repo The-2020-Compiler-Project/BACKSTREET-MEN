@@ -135,7 +135,13 @@ function QuatCreate() {
         /* 生成声明语句四元式
         *  声明同时赋值
         */
-        this.quat.push(new Quat('=',this.stack.items[this.stack.items.length - 1],this.semanticParser.flag,this.stack.items[this.stack.items.length - 2]));
+        if(this.semanticParser.flag === "tape") {
+            this.quat.push(new Quat('=','',this.semanticParser.flag,this.stack.items[this.stack.items.length - 2]));
+            this.quat.push(new Quat('=',this.stack.items[this.stack.items.length - 1],'',this.stack.items[this.stack.items.length - 2]));           
+        }
+        else
+            this.quat.push(new Quat('=',this.stack.items[this.stack.items.length - 1],this.semanticParser.flag,this.stack.items[this.stack.items.length - 2]));
+
     }
     this.quatTapeLeft = function () {
         /*
@@ -166,6 +172,39 @@ function QuatCreate() {
          *  声明同时不进行赋值
          */
         this.quat.push(new Quat('=','',this.semanticParser.flag,this.stack.items[this.stack.items.length - 1]));
+
+    }
+    this.quatIf = function(){
+        /*
+        *   生成if语句四元式
+        * trueorfalse为王毓钦传回来的 布尔表达式的值
+        * 最后一位标号后续回填
+         */
+        this.quat.push(new Quat('if',trueorfalse,'',''));
+    }
+    this.quatElsif = function(){
+        /*
+        *生成else if语句四元式
+        * trueorfalse 为王毓钦传回来的 布尔表达式的值
+        * 最后一位标号后续回填
+         */
+        this.quat.push(new Quat('elsif',trueorfalse,'',''));
+    }
+    this.quatElse = function(){
+        /*
+        *生成else 语句四元式
+        *
+        * 最后一位标号后续回填
+         */
+        this.quat.push(new Quat('else','','',''));
+    }
+    this.quatIe = function(){
+        this.quat.push(new Quat('ie','','',''));
+
+    }
+    this.quatGoto = function(){
+
+        this.quat.push(new Quat('goto','','',''));
 
     }
 }
